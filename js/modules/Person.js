@@ -1,4 +1,4 @@
-import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain } from './gameState.js';
+import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain, gameCanvas } from './gameState.js';
 import { generateRandomName, randomInt, sample } from './utils.js';
 import { THOUGHTS, getThought } from './translations.js';
 import { TRAITS, COLORS } from './constants.js';
@@ -153,7 +153,6 @@ export class Person {
 
     update(deltaTime) {
         // Skip update if off screen
-        const gameCanvas = document.getElementById('gameCanvas');
         if (!this.isOnScreen(offset, zoom, gameCanvas)) return;
 
         // Update thought timer
