@@ -710,6 +710,23 @@ export class Person {
         }
     }
 
+    updateMovement(deltaTime) {
+        if (this.targetX !== this.x || this.targetY !== this.y) {
+            const dx = this.targetX - this.x;
+            const dy = this.targetY - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const speed = 0.1 * this.speedMultiplier * deltaTime / 16; // Normalize for 60fps
+            
+            if (distance > speed) {
+                this.x += (dx / distance) * speed;
+                this.y += (dy / distance) * speed;
+            } else {
+                this.x = this.targetX;
+                this.y = this.targetY;
+            }
+        }
+    }
+
     updateTownMembership() {
         // Skip if already in a town or too young
         if (this.town || this.age < 15) return;
