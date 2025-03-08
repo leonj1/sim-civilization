@@ -2,6 +2,10 @@
 
 A browser-based civilization simulation game where you can spawn and observe the growth of a virtual society. Watch as your citizens build relationships, establish towns, develop infrastructure, and create a living, breathing world.
 
+![Sim Civilization Screenshot](sim-civilization.png)
+
+Sim-civilization is an engaging simulation that lets you play god and watch your society evolve organically through the interactions of its citizens.
+
 ## Features
 
 - **Population Growth**: Spawn male and female citizens who can form relationships and have children
