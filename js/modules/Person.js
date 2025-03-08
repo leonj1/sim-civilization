@@ -1,7 +1,7 @@
-import { OBJECT_POOL, currentGenerationNumber, offset, zoom } from '../game.js';
+import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain } from '../game.js';
 import { generateRandomName, randomInt, sample } from './utils.js';
 import { THOUGHTS, getThought } from './translations.js';
-import { TRAITS } from './constants.js';
+import { TRAITS, COLORS } from './constants.js';
 import { debugLog } from './utils.js';
 
 const OCCUPATIONS = [
