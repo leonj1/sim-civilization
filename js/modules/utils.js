@@ -1,21 +1,28 @@
 // Name generation
-const PREFIXES = ['New', 'Old', 'North', 'South', 'East', 'West', 'Upper', 'Lower', 'Great', 'Little'];
-const NAMES = ['York', 'London', 'Paris', 'Rome', 'Berlin', 'Tokyo', 'Delhi', 'Moscow', 'Cairo', 'Sydney'];
-const SUFFIXES = ['ville', 'town', 'burg', 'ford', 'port', 'field', 'bridge', 'haven', 'shire', 'dale'];
+const STARTING_SYLLABLES = {
+    masculine: ['kai', 'tho', 'rex', 'zak', 'jun'],
+    feminine: ['mia', 'lia', 'ava', 'zoe', 'rei']
+};
 
-export function generateRandomName() {
-    const usePrefix = Math.random() < 0.3;
-    const useSuffix = Math.random() < 0.4;
+const MIDDLE_SYLLABLES = ['na', 'ri', 'ko', 'mi', 'shi', 'ta', 'ra', 'ki', 'sa', 'yu'];
+
+const ENDING_SYLLABLES = {
+    masculine: ['rus', 'tor', 'der', 'rin', 'ton'],
+    feminine: ['lyn', 'ria', 'mae', 'bel', 'ren']
+};
+
+export function generateRandomName(gender = 'male') {
+    const start = gender === 'male' ? 
+        STARTING_SYLLABLES.masculine[Math.floor(Math.random() * STARTING_SYLLABLES.masculine.length)] :
+        STARTING_SYLLABLES.feminine[Math.floor(Math.random() * STARTING_SYLLABLES.feminine.length)];
     
-    let name = '';
-    if (usePrefix) {
-        name += PREFIXES[Math.floor(Math.random() * PREFIXES.length)] + ' ';
-    }
-    name += NAMES[Math.floor(Math.random() * NAMES.length)];
-    if (useSuffix) {
-        name += SUFFIXES[Math.floor(Math.random() * SUFFIXES.length)];
-    }
-    return name;
+    const middle = MIDDLE_SYLLABLES[Math.floor(Math.random() * MIDDLE_SYLLABLES.length)];
+    
+    const end = gender === 'male' ?
+        ENDING_SYLLABLES.masculine[Math.floor(Math.random() * ENDING_SYLLABLES.masculine.length)] :
+        ENDING_SYLLABLES.feminine[Math.floor(Math.random() * ENDING_SYLLABLES.feminine.length)];
+
+    return (start + middle + end).charAt(0).toUpperCase() + (start + middle + end).slice(1);
 }
 
 // Color utilities
