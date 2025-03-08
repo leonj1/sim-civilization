@@ -66,7 +66,7 @@ export class Person {
         this.following = null;
         
         // Occupation and work
-        this.occupation = this.age < 13 ? 'Child' : this.assignOccupation();
+        this.occupation = 'Child'; // Default to Child before updateOccupationBasedOnAge
         this.workTimer = 0;
         this.currentRoadTarget = null;
         this.bridgeProgress = 0;
@@ -90,10 +90,8 @@ export class Person {
         // Initialize movement timer
         this.setNewMoveTimer();
         
-        // Update occupation if old enough (after town is set)
-        if (this.age >= 13) {
-            this.updateOccupationBasedOnAge();
-        }
+        // Update occupation based on age (after town is set)
+        this.updateOccupationBasedOnAge();
         
         // Generate initial thought after all state is set
         this.currentThought = this.generateThought();
