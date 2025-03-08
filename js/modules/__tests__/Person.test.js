@@ -44,7 +44,8 @@ describe('Person', () => {
   test('should generate thoughts', () => {
     const thought = person.generateThought();
     expect(thought).toBeDefined();
-    // Our mock will return a predictable thought
+    // Since we're mocking translations.js, we should expect a specific thought
+    expect(thought).toBe('TestThought');
   });
 
   test('should update movement', () => {

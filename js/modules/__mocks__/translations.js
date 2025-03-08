@@ -1,20 +1,18 @@
 // Mock translations for testing
 
 export const THOUGHTS = {
-  HUNGRY: 'I am hungry',
-  TIRED: 'I need rest',
-  HAPPY: 'I feel great',
-  SAD: 'I am sad',
-  WORK: 'Time to work',
-  PLAY: 'Let\'s play',
-  SHOP: 'I want to buy something',
-  SOCIALIZE: 'I should talk to someone',
-  LEARN: 'I want to learn',
-  BUILD: 'Let\'s build something',
-  BLESSED: 'I feel blessed',
-  INSPIRED: 'I feel inspired'
+  HUNGRY: 'HUNGRY',
+  TIRED: 'TIRED',
+  HAPPY: 'HAPPY',
+  SAD: 'SAD',
+  WORK: 'WORK',
+  PLAY: 'PLAY',
+  SHOP: 'SHOP',
+  SOCIALIZE: 'SOCIALIZE',
+  LEARN: 'LEARN',
+  BUILD: 'BUILD',
+  BLESSED: 'BLESSED',
+  INSPIRED: 'INSPIRED'
 };
 
-export const getThought = (key) => {
-  return THOUGHTS[key] || 'Thinking...';
-};
+export const getThought = jest.fn().mockReturnValue('TestThought');
