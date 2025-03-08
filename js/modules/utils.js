@@ -1,26 +1,36 @@
-// Name generation
-const STARTING_SYLLABLES = {
-    masculine: ['kai', 'tho', 'rex', 'zak', 'jun'],
-    feminine: ['mia', 'lia', 'ava', 'zoe', 'rei']
+// Gender constants for consistent usage
+export const GENDER = {
+    MASCULINE: 'masculine',
+    FEMININE: 'feminine'
 };
 
-const MIDDLE_SYLLABLES = ['na', 'ri', 'ko', 'mi', 'shi', 'ta', 'ra', 'ki', 'sa', 'yu'];
-
-const ENDING_SYLLABLES = {
-    masculine: ['rus', 'tor', 'der', 'rin', 'ton'],
+const STARTING_SYLLABLES = {
+    masculine: ['ber', 'thor', 'gar', 'ral', 'mal'],
     feminine: ['lyn', 'ria', 'mae', 'bel', 'ren']
 };
 
-export function generateRandomName(gender = 'male') {
-    const start = gender === 'male' ? 
-        STARTING_SYLLABLES.masculine[Math.floor(Math.random() * STARTING_SYLLABLES.masculine.length)] :
-        STARTING_SYLLABLES.feminine[Math.floor(Math.random() * STARTING_SYLLABLES.feminine.length)];
-    
+const MIDDLE_SYLLABLES = ['an', 'en', 'in', 'on', 'un'];
+
+const ENDING_SYLLABLES = {
+    masculine: ['or', 'ar', 'ir', 'ur', 'er'],
+    feminine: ['a', 'ia', 'ea', 'ara', 'ira']
+};
+
+/**
+ * Generates a random name based on gender
+ * @param {string} gender - Either 'masculine' or 'feminine'
+ * @returns {string} Generated name
+ * @throws {Error} If invalid gender is provided
+ */
+export function generateRandomName(gender = GENDER.MASCULINE) {
+    // Validate gender parameter
+    if (gender !== GENDER.MASCULINE && gender !== GENDER.FEMININE) {
+        throw new Error(`Invalid gender: ${gender}. Must be either '${GENDER.MASCULINE}' or '${GENDER.FEMININE}'`);
+    }
+
+    const start = STARTING_SYLLABLES[gender][Math.floor(Math.random() * STARTING_SYLLABLES[gender].length)];
     const middle = MIDDLE_SYLLABLES[Math.floor(Math.random() * MIDDLE_SYLLABLES.length)];
-    
-    const end = gender === 'male' ?
-        ENDING_SYLLABLES.masculine[Math.floor(Math.random() * ENDING_SYLLABLES.masculine.length)] :
-        ENDING_SYLLABLES.feminine[Math.floor(Math.random() * ENDING_SYLLABLES.feminine.length)];
+    const end = ENDING_SYLLABLES[gender][Math.floor(Math.random() * ENDING_SYLLABLES[gender].length)];
 
     return (start + middle + end).charAt(0).toUpperCase() + (start + middle + end).slice(1);
 }
