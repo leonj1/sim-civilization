@@ -214,8 +214,8 @@ function render() {
     // Restore canvas state
     ctx.restore();
     
-    // Draw UI
-    drawUI();
+    // Draw UI with current frame time
+    drawUI(performance.now() - lastRender);
     
     // Draw pause indicator if game is paused
     if (isPaused) {
@@ -230,7 +230,7 @@ function render() {
     }
 }
 
-function drawUI() {
+function drawUI(deltaTime) {
     // Draw game speed
     ctx.fillStyle = 'black';
     ctx.font = '16px Mojangles';
@@ -241,9 +241,9 @@ function drawUI() {
     const totalPopulation = towns.reduce((sum, town) => sum + town.population, 0);
     ctx.fillText(`${getTranslation('GAME.POPULATION', currentLanguage)}: ${totalPopulation}`, 10, 60);
     
-    // Draw FPS
-    const fps = Math.round(1000 / deltaTime);
-    ctx.fillText(`FPS: ${fps}`, 10, 90);
+    // Draw FPS with smoothing
+    const fps = deltaTime > 0 ? Math.round(1000 / deltaTime) : 0;
+    ctx.fillText(`FPS: ${Math.min(fps, 60)}`, 10, 90); // Cap displayed FPS at 60
 }
 
 // Event handlers
