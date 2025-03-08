@@ -239,9 +239,17 @@ export class Store extends Building {
 export class PublicBuilding extends Building {
     constructor(x, y, type) {
         super(x, y);
-        this.type = type;
+        this._type = type;
         this.occupants = [];
-        this.capacity = this.determineCapacity(type);
+        this._capacity = this.determineCapacity(type);
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get capacity() {
+        return this._capacity;
     }
 
     determineCapacity(type) {
@@ -400,7 +408,6 @@ export class ResidentialBuilding extends PublicBuilding {
         super(x, y, type);
         // Cache the calculated capacity
         this._capacity = this.calculateCapacity(type);
-        this._type = type;
     }
 
     /**
@@ -409,14 +416,6 @@ export class ResidentialBuilding extends PublicBuilding {
      */
     get capacity() {
         return this._capacity;
-    }
-
-    /**
-     * Get the building's type
-     * @returns {string} The building type
-     */
-    get type() {
-        return this._type;
     }
 
     /**
