@@ -406,4 +406,219 @@ export class Person {
         // Set cooldown to prevent immediate new relationship
         this.relationTimer = randomInt(5000, 10000);
     }
+
+    updateOccupation(deltaTime) {
+        // Skip if too young or already in another activity
+        if (this.age < 13 || this.occupation === 'Child' || this.isPlayingTag || this.isPlayingRPS || this.inRelation) {
+            return;
+        }
+
+        // Update work timer
+        this.workTimer -= deltaTime;
+        if (this.workTimer <= 0) {
+            this.performOccupationAction();
+            // Set next work interval
+            this.workTimer = randomInt(3000, 8000);
+        }
+    }
+
+    performOccupationAction() {
+        if (!this.town) return; // Must be in a town to work
+
+        switch (this.occupation) {
+            case 'Builder':
+                this.handleBuilderAction();
+                break;
+            case 'Farmer':
+                this.handleFarmerAction();
+                break;
+            case 'Guard':
+                this.handleGuardAction();
+                break;
+            case 'Doctor':
+                this.handleDoctorAction();
+                break;
+            case 'Merchant':
+                this.handleMerchantAction();
+                break;
+            case 'Teacher':
+                this.handleTeacherAction();
+                break;
+            case 'Priest':
+                this.handlePriestAction();
+                break;
+            case 'Artist':
+                this.handleArtistAction();
+                break;
+        }
+    }
+
+    handleBuilderAction() {
+        // Check for road or bridge construction needs
+        if (this.currentRoadTarget) {
+            // Continue road construction
+            this.targetX = this.currentRoadTarget.x;
+            this.targetY = this.currentRoadTarget.y;
+        } else if (this.currentBridgeTarget) {
+            // Continue bridge construction
+            this.bridgeProgress += this.traits.includes(TRAITS.STRONG) ? 0.2 : 0.1;
+            if (this.bridgeProgress >= 1) {
+                this.completeBridgeConstruction();
+            }
+        } else {
+            // Look for new construction project
+            this.findNewConstructionProject();
+        }
+    }
+
+    handleFarmerAction() {
+        // Find or maintain farm plots
+        const nearbyFarms = this.town.buildings.filter(b => 
+            b.type === 'farm' && 
+            Math.hypot(b.x - this.x, b.y - this.y) < 50
+        );
+
+        if (nearbyFarms.length > 0) {
+            const farm = sample(nearbyFarms);
+            this.targetX = farm.x;
+            this.targetY = farm.y;
+            // Increase farm productivity
+            if (farm.productivity) {
+                farm.productivity += this.traits.includes(TRAITS.GREEN_THUMB) ? 0.2 : 0.1;
+            }
+        }
+    }
+
+    handleGuardAction() {
+        // Patrol town perimeter
+        const angle = (Date.now() % 10000) / 10000 * Math.PI * 2;
+        const radius = this.town.radius * 0.8;
+        this.targetX = this.town.x + Math.cos(angle) * radius;
+        this.targetY = this.town.y + Math.sin(angle) * radius;
+    }
+
+    handleDoctorAction() {
+        // Find and heal injured or sick people
+        const nearbyPeople = this.town.population.filter(p => 
+            p !== this && 
+            Math.hypot(p.x - this.x, p.y - this.y) < 30 &&
+            p.age > p.maxAge * 0.8
+        );
+
+        if (nearbyPeople.length > 0) {
+            const patient = sample(nearbyPeople);
+            this.targetX = patient.x;
+            this.targetY = patient.y;
+            // Extend their lifespan slightly
+            patient.maxAge += this.traits.includes(TRAITS.WISE) ? 2 : 1;
+        }
+    }
+
+    handleMerchantAction() {
+        // Move between market areas
+        const markets = this.town.buildings.filter(b => b.type === 'market');
+        if (markets.length > 0) {
+            const market = sample(markets);
+            this.targetX = market.x;
+            this.targetY = market.y;
+        }
+    }
+
+    handleTeacherAction() {
+        // Find young people to teach
+        const students = this.town.population.filter(p => 
+            p !== this && 
+            p.age < 18 && 
+            Math.hypot(p.x - this.x, p.y - this.y) < 40
+        );
+
+        if (students.length > 0) {
+            const student = sample(students);
+            this.targetX = student.x;
+            this.targetY = student.y;
+            // Teaching might occasionally grant a trait
+            if (Math.random() < 0.1 && this.traits.includes(TRAITS.WISE)) {
+                const teachableTrait = sample(Object.values(TRAITS));
+                student.traits.add(teachableTrait);
+            }
+        }
+    }
+
+    handlePriestAction() {
+        // Move between temple and people
+        const temples = this.town.buildings.filter(b => b.type === 'temple');
+        if (temples.length > 0) {
+            const temple = sample(temples);
+            this.targetX = temple.x;
+            this.targetY = temple.y;
+            // Occasionally bless nearby people
+            if (Math.random() < 0.2) {
+                this.blessNearbyPeople();
+            }
+        }
+    }
+
+    handleArtistAction() {
+        // Create art at different locations
+        if (!this.currentArtLocation) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * (this.town.radius * 0.7);
+            this.currentArtLocation = {
+                x: this.town.x + Math.cos(angle) * distance,
+                y: this.town.y + Math.sin(angle) * distance,
+                timer: randomInt(5000, 10000)
+            };
+        }
+        
+        this.targetX = this.currentArtLocation.x;
+        this.targetY = this.currentArtLocation.y;
+        
+        // Occasionally inspire nearby people
+        if (Math.random() < 0.1) {
+            this.inspireNearbyPeople();
+        }
+    }
+
+    blessNearbyPeople() {
+        const nearbyPeople = this.town.population.filter(p => 
+            p !== this && 
+            Math.hypot(p.x - this.x, p.y - this.y) < 30
+        );
+
+        nearbyPeople.forEach(person => {
+            person.currentThought = getThought('BLESSED');
+            person.thoughtUpdateTimer = randomInt(5000, 10000);
+        });
+    }
+
+    inspireNearbyPeople() {
+        const nearbyPeople = this.town.population.filter(p => 
+            p !== this && 
+            Math.hypot(p.x - this.x, p.y - this.y) < 30
+        );
+
+        nearbyPeople.forEach(person => {
+            person.currentThought = getThought('INSPIRED');
+            person.thoughtUpdateTimer = randomInt(5000, 10000);
+        });
+    }
+
+    findNewConstructionProject() {
+        // Look for areas needing roads or bridges
+        // Implementation depends on town's road/bridge system
+        // Placeholder for now
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * (this.town.radius * 0.7);
+        this.targetX = this.town.x + Math.cos(angle) * distance;
+        this.targetY = this.town.y + Math.sin(angle) * distance;
+    }
+
+    completeBridgeConstruction() {
+        if (this.currentBridgeTarget) {
+            // Add bridge to town's infrastructure
+            // Implementation depends on town's bridge system
+            this.currentBridgeTarget = null;
+            this.bridgeProgress = 0;
+        }
+    }
 } 
