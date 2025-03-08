@@ -410,6 +410,17 @@ export class Person {
                screenY >= -100 && screenY <= canvas.height + 100;
     }
 
+    /**
+     * Calculates the Euclidean distance between this person and a target point
+     * @param {Object} point - The target point with x and y coordinates
+     * @returns {number} The distance between the points
+     */
+    distanceTo(point) {
+        const dx = point.x - this.x;
+        const dy = point.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
     clearReferences() {
         // Clear relationship references
         this.partner = null;
@@ -467,15 +478,15 @@ export class Person {
         this.relationTimer -= deltaTime;
         
         // Move towards partner
-        const dx = this.partner.x - this.x;
-        const dy = this.partner.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        const distance = this.distanceTo(this.partner);
         
         if (distance > 20) {
             // Move closer to partner with normalized 60fps timing
             const speed = 0.1 * this.speedMultiplier;
-            this.x += (dx / distance) * speed * deltaTime / 16; // Normalize for 60fps
-            this.y += (dy / distance) * speed * deltaTime / 16; // Normalize for 60fps
+            const dx = this.partner.x - this.x;
+            const dy = this.partner.y - this.y;
+            this.x += (dx / distance) * speed * deltaTime / 16;
+            this.y += (dy / distance) * speed * deltaTime / 16;
         }
 
         // Check if relationship should end
@@ -563,7 +574,7 @@ export class Person {
         // Find or maintain farm plots
         const nearbyFarms = this.town.buildings.filter(b => 
             b.type === 'farm' && 
-            Math.hypot(b.x - this.x, b.y - this.y) < 50
+            this.distanceTo(b) < 50
         );
 
         if (nearbyFarms.length > 0) {
@@ -589,7 +600,7 @@ export class Person {
         // Find and heal injured or sick people
         const nearbyPeople = this.town.population.filter(p => 
             p !== this && 
-            Math.hypot(p.x - this.x, p.y - this.y) < 30 &&
+            this.distanceTo(p) < 30 &&
             p.age > p.maxAge * 0.8
         );
 
@@ -617,7 +628,7 @@ export class Person {
         const students = this.town.population.filter(p => 
             p !== this && 
             p.age < 18 && 
-            Math.hypot(p.x - this.x, p.y - this.y) < 40
+            this.distanceTo(p) < 40
         );
 
         if (students.length > 0) {
@@ -670,7 +681,7 @@ export class Person {
     blessNearbyPeople() {
         const nearbyPeople = this.town.population.filter(p => 
             p !== this && 
-            Math.hypot(p.x - this.x, p.y - this.y) < 30
+            this.distanceTo(p) < 30
         );
 
         nearbyPeople.forEach(person => {
@@ -682,7 +693,7 @@ export class Person {
     inspireNearbyPeople() {
         const nearbyPeople = this.town.population.filter(p => 
             p !== this && 
-            Math.hypot(p.x - this.x, p.y - this.y) < 30
+            this.distanceTo(p) < 30
         );
 
         nearbyPeople.forEach(person => {
@@ -748,9 +759,7 @@ export class Person {
         
         return towns.filter(town => {
             if (!town || town.population.includes(this)) return false;
-            
-            const distance = Math.hypot(town.x - this.x, town.y - this.y);
-            return distance <= town.radius * 1.2; // Allow joining if slightly outside
+            return this.distanceTo(town) <= town.radius * 1.2; // Allow joining if slightly outside
         });
     }
 
@@ -764,9 +773,7 @@ export class Person {
             if (popDiff !== 0) return popDiff;
             
             // Secondary sort by distance
-            const distA = Math.hypot(a.x - this.x, a.y - this.y);
-            const distB = Math.hypot(b.x - this.x, b.y - this.y);
-            return distA - distB;
+            return this.distanceTo(a) - this.distanceTo(b);
         });
 
         return towns[0];
