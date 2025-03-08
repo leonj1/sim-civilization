@@ -351,17 +351,22 @@ export class Person {
     }
 
     die() {
+        // Clear partner references
         if (this.partner) {
             this.partner.partner = null;
         }
+
+        // Remove from town if part of one
         if (this.town) {
             const idx = this.town.population.indexOf(this);
-            if (idx > -1) this.town.population.splice(idx, 1);
+            if (idx > -1) {
+                this.town.population.splice(idx, 1);
+            }
         }
-        const index = people.indexOf(this);
-        if (index > -1) {
-            people.splice(index, 1);
-        }
+
+        // Return to object pool for reuse
+        OBJECT_POOL.people.push(this);
+
         debugLog(`${this.name} has died at age ${Math.floor(this.age)}`, 'info');
     }
 } 
