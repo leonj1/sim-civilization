@@ -621,4 +621,80 @@ export class Person {
             this.bridgeProgress = 0;
         }
     }
+
+    updateTownMembership() {
+        // Skip if already in a town or too young
+        if (this.town || this.age < 15) return;
+
+        // Check for nearby towns
+        const nearbyTowns = this.findNearbyTowns();
+        if (!nearbyTowns.length) return;
+
+        // Choose the closest town or one with fewest people
+        const targetTown = this.selectBestTown(nearbyTowns);
+        if (!targetTown) return;
+
+        // Join the town
+        this.joinTown(targetTown);
+    }
+
+    findNearbyTowns() {
+        // This should be implemented to return array of nearby towns
+        // For now, assuming towns is a global array or accessible through game state
+        if (!window.towns) return [];
+        
+        return window.towns.filter(town => {
+            if (!town || town.population.includes(this)) return false;
+            
+            const distance = Math.hypot(town.x - this.x, town.y - this.y);
+            return distance <= town.radius * 1.2; // Allow joining if slightly outside
+        });
+    }
+
+    selectBestTown(towns) {
+        if (!towns.length) return null;
+        
+        // Prefer towns with fewer people
+        towns.sort((a, b) => {
+            // Primary sort by population size
+            const popDiff = a.population.length - b.population.length;
+            if (popDiff !== 0) return popDiff;
+            
+            // Secondary sort by distance
+            const distA = Math.hypot(a.x - this.x, a.y - this.y);
+            const distB = Math.hypot(b.x - this.x, b.y - this.y);
+            return distA - distB;
+        });
+
+        return towns[0];
+    }
+
+    joinTown(town) {
+        if (!town || this.town === town) return;
+
+        // Leave current town if any
+        if (this.town) {
+            const idx = this.town.population.indexOf(this);
+            if (idx > -1) {
+                this.town.population.splice(idx, 1);
+            }
+        }
+
+        // Join new town
+        this.town = town;
+        town.population.push(this);
+
+        // Update occupation based on town needs
+        if (this.age >= 13 && this.occupation !== 'Child') {
+            this.occupation = this.assignOccupation();
+        }
+
+        // Set initial position within town
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * (town.radius * 0.7);
+        this.targetX = town.x + Math.cos(angle) * distance;
+        this.targetY = town.y + Math.sin(angle) * distance;
+
+        debugLog(`${this.name} has joined ${town.name}`, 'info');
+    }
 } 
