@@ -15,6 +15,27 @@ export const towns = [];
 export let gameCanvas = null;
 export let ctx = null;
 
+/**
+ * Initialize the game's rendering context
+ * @param {HTMLCanvasElement} canvas - The canvas element to use for rendering
+ * @param {CanvasRenderingContext2D} context - The 2D rendering context
+ * @throws {Error} If canvas or context are invalid
+ * @returns {Object} The initialized canvas and context
+ */
+export function initializeCanvas(canvas, context) {
+    if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
+        throw new Error('Valid canvas element required');
+    }
+    if (!context || !(context instanceof CanvasRenderingContext2D)) {
+        throw new Error('Valid 2D rendering context required');
+    }
+
+    gameCanvas = canvas;
+    ctx = context;
+    
+    return { gameCanvas, ctx };
+}
+
 // Functions to update game state
 export function setCurrentGeneration(gen) {
     if (typeof gen !== 'number' || gen < 0) {
@@ -48,17 +69,4 @@ export function updateZoom(newZoom) {
     }
     // Clamp zoom between reasonable bounds
     zoom = Math.max(0.1, Math.min(10, newZoom));
-}
-
-// Canvas initialization
-export function initializeCanvas() {
-    gameCanvas = document.getElementById('gameCanvas');
-    if (!gameCanvas) {
-        throw new Error('Canvas element not found');
-    }
-    ctx = gameCanvas.getContext('2d');
-    if (!ctx) {
-        throw new Error('Could not get canvas context');
-    }
-    return { gameCanvas, ctx };
 } 
