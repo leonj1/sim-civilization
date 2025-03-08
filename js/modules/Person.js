@@ -411,10 +411,10 @@ export class Person {
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance > 20) {
-            // Move closer to partner
+            // Move closer to partner with normalized 60fps timing
             const speed = 0.1 * this.speedMultiplier;
-            this.x += (dx / distance) * speed * deltaTime;
-            this.y += (dy / distance) * speed * deltaTime;
+            this.x += (dx / distance) * speed * deltaTime / 16; // Normalize for 60fps
+            this.y += (dy / distance) * speed * deltaTime / 16; // Normalize for 60fps
         }
 
         // Check if relationship should end
