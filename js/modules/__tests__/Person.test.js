@@ -38,7 +38,8 @@ describe('Person', () => {
   test('should generate traits', () => {
     const traits = person.traits;
     expect(traits).toBeDefined();
-    // Since our mock Math.random will be predictable, we can test for specific traits
+    // Since our mock will return a predictable trait
+    expect(traits instanceof Set).toBe(true);
   });
 
   test('should generate thoughts', () => {
