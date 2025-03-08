@@ -27,47 +27,88 @@ export class Person {
     }
 
     reset(x, y, gender) {
+        // Basic properties
         this.x = x;
         this.y = y;
         this.gender = gender;
         this.name = generateRandomName(gender);
-        this.partner = null;
-        this.home = null;
+        
+        // Age and lifecycle
         this.age = Math.floor(Math.random() * 6) + 15;
+        this.maxAge = Math.random() * 30 + 70;
+        
+        // State flags
         this.isPlayingTag = false;
         this.isIt = false;
+        this.isPlayingRPS = false;
+        this.isMayor = false;
+        
+        // Relationship state
+        this.partner = null;
         this.inRelation = false;
         this.relationTimer = 0;
+        this.reproductionCooldown = 0;
+        this.parent = null;
+        this.motherPartner = null;
+        this.fatherPartner = null;
+        
+        // Movement state
         this.moveTimer = 0;
         this.targetX = x;
         this.targetY = y;
         this.initialX = null;
         this.initialY = null;
         this.spinStartTime = null;
-        this.maxAge = Math.random() * 30 + 70;
-        this.occupation = this.age >= 13 ? this.assignOccupation() : 'Child';
+        
+        // Location references
+        this.home = null;
+        this.town = null;
+        this.following = null;
+        
+        // Occupation and work
+        this.occupation = 'Child'; // Default to Child, will be updated if needed
         this.workTimer = 0;
         this.currentRoadTarget = null;
         this.bridgeProgress = 0;
         this.currentBridgeTarget = null;
-        this.setNewMoveTimer();
-        this.reproductionCooldown = 0;
-        this.town = null;
-        this.parent = null;
-        this.motherPartner = null;
-        this.fatherPartner = null;
+        
+        // Game state
         this.spawnTime = Date.now();
-        this.following = null;
         this.generation = typeof currentGenerationNumber !== 'undefined' ? currentGenerationNumber : 0;
-        this.isMayor = false;
-        this.isPlayingRPS = false;
         this.rpsChoice = null;
         this.rpsResult = null;
-        this.currentThought = this.generateThought();
-        this.thoughtUpdateTimer = Math.random() * 5000 + 5000;
+        
+        // Traits and characteristics
         this.traits = this.generateTraits();
         this.speedMultiplier = this.traits.includes(TRAITS.FAST) ? 1.5 : 1.0;
         this.scale = this.traits.includes(TRAITS.GIANT) ? 1.3 : 1.0;
+        
+        // Thought system
+        this.currentThought = null;
+        this.thoughtUpdateTimer = Math.random() * 5000 + 5000;
+        
+        // Initialize movement timer
+        this.setNewMoveTimer();
+        
+        // Update occupation if old enough (after town is set)
+        if (this.age >= 13) {
+            this.updateOccupationBasedOnAge();
+        }
+        
+        // Generate initial thought after all state is set
+        this.currentThought = this.generateThought();
+    }
+
+    /**
+     * Updates occupation based on age and town membership
+     * Called after town assignment or when age threshold is reached
+     */
+    updateOccupationBasedOnAge() {
+        if (this.age >= 13) {
+            this.occupation = this.assignOccupation();
+        } else {
+            this.occupation = 'Child';
+        }
     }
 
     /**
@@ -75,6 +116,11 @@ export class Person {
      * @returns {string} The assigned occupation
      */
     assignOccupation() {
+        // Safety check - if too young, always return Child
+        if (this.age < 13) {
+            return 'Child';
+        }
+
         // If not in a town, assign random occupation
         if (!this.town || !this.town.population) {
             return sample(OCCUPATIONS);
