@@ -152,11 +152,11 @@ function createInitialTown() {
 function gameLoop(timestamp) {
     const deltaTime = (timestamp - lastTime) * gameSpeed;
     lastTime = timestamp;
-    
+
     if (!isPaused) {
         update();
     }
-    
+
     render();
     requestAnimationFrame(gameLoop);
 }

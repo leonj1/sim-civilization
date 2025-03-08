@@ -21,7 +21,8 @@ export function generateRandomName() {
 // Color utilities
 export function rgbToHex(r, g, b) {
     return '#' + [r, g, b].map(x => {
-        const hex = Math.round(x).toString(16);
+        const clamped = Math.min(255, Math.max(0, x));
+        const hex = Math.round(clamped).toString(16);
         return hex.length === 1 ? '0' + hex : hex;
     }).join('');
 }
