@@ -1,4 +1,4 @@
-import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain, gameCanvas } from './gameState.js';
+import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain, gameCanvas, towns } from './gameState.js';
 import { generateRandomName, randomInt, sample } from './utils.js';
 import { THOUGHTS, getThought } from './translations.js';
 import { TRAITS, COLORS } from './constants.js';
@@ -666,11 +666,9 @@ export class Person {
     }
 
     findNearbyTowns() {
-        // This should be implemented to return array of nearby towns
-        // For now, assuming towns is a global array or accessible through game state
-        if (!window.towns) return [];
+        if (!towns || !towns.length) return [];
         
-        return window.towns.filter(town => {
+        return towns.filter(town => {
             if (!town || town.population.includes(this)) return false;
             
             const distance = Math.hypot(town.x - this.x, town.y - this.y);

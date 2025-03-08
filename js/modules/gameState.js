@@ -8,6 +8,9 @@ export let terrain = null;
 export const offset = { x: 0, y: 0 };
 export let zoom = 1;
 
+// Game entities
+export const towns = [];
+
 // Canvas state
 export let gameCanvas = null;
 export let ctx = null;
