@@ -349,6 +349,30 @@ export class Person {
                screenY >= -100 && screenY <= canvas.height + 100;
     }
 
+    clearReferences() {
+        // Clear relationship references
+        this.partner = null;
+        this.motherPartner = null;
+        this.fatherPartner = null;
+        this.parent = null;
+
+        // Clear location references
+        this.town = null;
+        this.home = null;
+        this.following = null;
+
+        // Clear occupation-related references
+        this.currentRoadTarget = null;
+        this.currentBridgeTarget = null;
+        this.currentArtLocation = null;
+
+        // Clear game state
+        this.traits = new Set();
+        this.currentThought = null;
+        this.rpsChoice = null;
+        this.rpsResult = null;
+    }
+
     die() {
         // Clear partner references
         if (this.partner) {
@@ -362,6 +386,9 @@ export class Person {
                 this.town.population.splice(idx, 1);
             }
         }
+
+        // Clear all references before returning to pool
+        this.clearReferences();
 
         // Return to object pool for reuse
         OBJECT_POOL.people.push(this);
