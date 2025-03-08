@@ -70,26 +70,87 @@ export class Person {
         this.scale = this.traits.includes(TRAITS.GIANT) ? 1.3 : 1.0;
     }
 
+    /**
+     * Assigns an occupation based on town needs and current distribution
+     * @returns {string} The assigned occupation
+     */
     assignOccupation() {
-        // Weight occupations based on town needs and current distribution
-        if (this.town) {
+        // If not in a town, assign random occupation
+        if (!this.town || !this.town.population) {
+            return sample(OCCUPATIONS);
+        }
+
+        try {
+            // Get current occupation distribution
             const occupationCounts = new Map();
-            this.town.people.forEach(person => {
+            this.town.population.forEach(person => {
                 if (person.occupation !== 'Child') {
                     occupationCounts.set(person.occupation, (occupationCounts.get(person.occupation) || 0) + 1);
                 }
             });
 
-            // Prioritize underrepresented occupations
-            const minCount = Math.min(...Array.from(occupationCounts.values(), count => count || 0));
-            const neededOccupations = OCCUPATIONS.filter(occ => !occupationCounts.has(occ) || occupationCounts.get(occ) === minCount);
+            // Calculate occupation needs
+            const townNeeds = this.calculateTownNeeds(occupationCounts);
             
-            if (neededOccupations.length > 0) {
-                return sample(neededOccupations);
+            // If there are critical needs, fulfill them first
+            const criticalNeeds = townNeeds.filter(need => need.priority > 0.8);
+            if (criticalNeeds.length > 0) {
+                return sample(criticalNeeds).occupation;
             }
+
+            // Otherwise, weight by general needs
+            const totalNeed = townNeeds.reduce((sum, need) => sum + need.priority, 0);
+            let random = Math.random() * totalNeed;
+            
+            for (const need of townNeeds) {
+                random -= need.priority;
+                if (random <= 0) return need.occupation;
+            }
+
+            // Fallback to random occupation if something goes wrong
+            return sample(OCCUPATIONS);
+        } catch (error) {
+            console.error('Error assigning occupation:', error);
+            return sample(OCCUPATIONS);
         }
-        
-        return sample(OCCUPATIONS);
+    }
+
+    /**
+     * Calculates town needs based on current occupation distribution
+     * @param {Map<string, number>} occupationCounts - Current occupation counts
+     * @returns {Array<{occupation: string, priority: number}>} Prioritized occupation needs
+     * @private
+     */
+    calculateTownNeeds(occupationCounts) {
+        const totalPopulation = this.town.population.length;
+        const needs = [];
+
+        // Define ideal ratios for each occupation
+        const idealRatios = {
+            'Farmer': 0.2,    // 20% should be farmers
+            'Builder': 0.15,  // 15% builders
+            'Guard': 0.1,     // 10% guards
+            'Doctor': 0.1,    // 10% doctors
+            'Merchant': 0.15, // 15% merchants
+            'Teacher': 0.1,   // 10% teachers
+            'Priest': 0.1,    // 10% priests
+            'Artist': 0.1     // 10% artists
+        };
+
+        // Calculate priority for each occupation
+        for (const [occupation, idealRatio] of Object.entries(idealRatios)) {
+            const currentCount = occupationCounts.get(occupation) || 0;
+            const idealCount = Math.ceil(totalPopulation * idealRatio);
+            const deficit = Math.max(0, idealCount - currentCount);
+            
+            needs.push({
+                occupation,
+                priority: deficit / idealCount // Higher deficit = higher priority
+            });
+        }
+
+        // Sort by priority (highest first)
+        return needs.sort((a, b) => b.priority - a.priority);
     }
 
     setNewMoveTimer() {
