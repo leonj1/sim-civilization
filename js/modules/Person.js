@@ -1,4 +1,4 @@
-import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain } from '../game.js';
+import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain } from './gameState.js';
 import { generateRandomName, randomInt, sample } from './utils.js';
 import { THOUGHTS, getThought } from './translations.js';
 import { TRAITS, COLORS } from './constants.js';
