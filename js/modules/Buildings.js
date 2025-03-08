@@ -7,6 +7,15 @@ export const STORE_COLORS = {
     DOOR: '#228B22'
 };
 
+// Store constants
+const STORE_CONFIG = {
+    MAX_INVENTORY: 100,
+    MIN_INVENTORY: 0,
+    RESTOCK_AMOUNT: 5,
+    RESTOCK_INTERVAL: 5000,  // 5 seconds
+    LOW_STOCK_THRESHOLD: 20
+};
+
 export class Building {
     constructor(x, y) {
         this.x = x;
@@ -67,9 +76,10 @@ export class Store extends Building {
         this.type = 'store';
         this.owner = null;
         this.employees = [];
-        this.inventory = 100;
+        this.inventory = STORE_CONFIG.MAX_INVENTORY;
         this.customers = [];
-        this.restockTimer = 0;
+        this.restockTimer = STORE_CONFIG.RESTOCK_INTERVAL;
+        this.lastRestockTime = Date.now();
     }
 
     draw(ctx, offset, zoom) {
@@ -97,17 +107,48 @@ export class Store extends Building {
         ctx.fillRect(screenX - 15 * zoom, screenY - 25 * zoom, 30 * zoom * (this.inventory / 100), 3 * zoom);
     }
 
+    /**
+     * Updates store state including inventory management
+     * @param {number} deltaTime - Time elapsed since last update in milliseconds
+     */
     update(deltaTime) {
         super.update(deltaTime);
+        
+        // Update restock timer
         this.restockTimer -= deltaTime;
+        
+        // Handle restocking
         if (this.restockTimer <= 0) {
-            this.inventory = Math.max(0, Math.min(100, this.inventory - 5));
-            this.restockTimer = 5000;
+            this.restock();
+            this.restockTimer = STORE_CONFIG.RESTOCK_INTERVAL;
         }
     }
 
+    /**
+     * Restocks the store inventory
+     * @returns {number} Amount of inventory added
+     */
+    restock() {
+        if (this.inventory >= STORE_CONFIG.MAX_INVENTORY) return 0;
+        
+        const oldInventory = this.inventory;
+        this.inventory = Math.min(
+            STORE_CONFIG.MAX_INVENTORY,
+            this.inventory + STORE_CONFIG.RESTOCK_AMOUNT
+        );
+        
+        const amountAdded = this.inventory - oldInventory;
+        this.lastRestockTime = Date.now();
+        
+        return amountAdded;
+    }
+
+    /**
+     * Checks if the store needs supplies
+     * @returns {boolean} True if inventory is below threshold
+     */
     needsSupplies() {
-        return this.inventory < 50;
+        return this.inventory < STORE_CONFIG.LOW_STOCK_THRESHOLD;
     }
 }
 
