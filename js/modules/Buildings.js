@@ -16,6 +16,21 @@ const STORE_CONFIG = {
     LOW_STOCK_THRESHOLD: 20
 };
 
+// Building configuration constants
+const RESIDENTIAL_CONFIG = {
+    HOTEL: {
+        MIN_CAPACITY: 50,
+        MAX_CAPACITY: 75,
+        STEP_SIZE: 5
+    },
+    CONDO: {
+        MIN_CAPACITY: 20,
+        MAX_CAPACITY: 40,
+        STEP_SIZE: 5
+    },
+    DEFAULT_CAPACITY: 20
+};
+
 export class Building {
     constructor(x, y) {
         this.x = x;
@@ -315,16 +330,44 @@ export class PublicBuilding extends Building {
 export class ResidentialBuilding extends PublicBuilding {
     constructor(x, y, type) {
         super(x, y, type);
-        this.capacity = this.calculateCapacity(type);
+        // Cache the calculated capacity
+        this._capacity = this.calculateCapacity(type);
+        this._type = type;
     }
 
+    /**
+     * Get the building's capacity
+     * @returns {number} The cached capacity value
+     */
+    get capacity() {
+        return this._capacity;
+    }
+
+    /**
+     * Get the building's type
+     * @returns {string} The building type
+     */
+    get type() {
+        return this._type;
+    }
+
+    /**
+     * Calculates initial capacity based on building type
+     * @param {string} type - The type of residential building
+     * @returns {number} The calculated capacity
+     * @private
+     */
     calculateCapacity(type) {
-        if (type === 'hotel') {
-            return Math.round(Math.random() * (75 - 50) / 5) * 5 + 50;
-        } else if (type === 'condo') {
-            return Math.round(Math.random() * (40 - 20) / 5) * 5 + 20;
-        }
-        return 20;
+        const config = type === 'hotel' ? 
+            RESIDENTIAL_CONFIG.HOTEL : 
+            type === 'condo' ? 
+                RESIDENTIAL_CONFIG.CONDO : 
+                null;
+
+        if (!config) return RESIDENTIAL_CONFIG.DEFAULT_CAPACITY;
+
+        const range = (config.MAX_CAPACITY - config.MIN_CAPACITY) / config.STEP_SIZE;
+        return Math.round(Math.random() * range) * config.STEP_SIZE + config.MIN_CAPACITY;
     }
 
     draw(ctx, offset, zoom) {
