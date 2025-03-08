@@ -53,7 +53,7 @@ export class Person {
         this.fatherPartner = null;
         this.spawnTime = Date.now();
         this.following = null;
-        this.generation = currentGenerationNumber;
+        this.generation = typeof currentGenerationNumber !== 'undefined' ? currentGenerationNumber : 0;
         this.isMayor = false;
         this.isPlayingRPS = false;
         this.rpsChoice = null;
