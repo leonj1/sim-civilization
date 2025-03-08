@@ -66,8 +66,37 @@ export function randomRange(min, max) {
     return Math.random() * (max - min) + min;
 }
 
+/**
+ * Generates a random integer between min and max (inclusive)
+ * @param {number} min - The minimum value (inclusive)
+ * @param {number} max - The maximum value (inclusive)
+ * @returns {number} A random integer between min and max
+ * @throws {Error} If min > max or if values exceed safe integer bounds
+ */
 export function randomInt(min, max) {
-    return Math.floor(randomRange(min, max + 1));
+    // Validate inputs are integers
+    min = Math.floor(min);
+    max = Math.floor(max);
+
+    // Validate bounds
+    if (min > max) {
+        throw new Error('Minimum value must be less than or equal to maximum value');
+    }
+
+    // Check for safe integer bounds
+    if (!Number.isSafeInteger(min) || !Number.isSafeInteger(max)) {
+        throw new Error('Values must be within safe integer bounds');
+    }
+
+    // Calculate range size (add 1 to include max in possible results)
+    const range = max - min + 1;
+    
+    // Check if range is safe
+    if (!Number.isSafeInteger(range)) {
+        throw new Error('Range size exceeds safe integer bounds');
+    }
+
+    return Math.floor(min + Math.random() * range);
 }
 
 // Distance calculations
