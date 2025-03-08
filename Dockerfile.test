@@ -1,0 +1,19 @@
+# Use Node.js LTS version as base image
+FROM node:20-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy source files and test configuration
+COPY js/ ./js/
+COPY jest.config.cjs jest.setup.js babel.config.cjs ./
+
+# Set environment to test
+ENV NODE_ENV=test
+
+# Run tests
+CMD ["npm", "test"] 

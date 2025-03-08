@@ -100,38 +100,13 @@
     };
 
     async function initializeNameLists() {
-      for (const word of COMMON_WORDS) {
-        for (const lang of TRANSLATE_TARGET_LANGS) {
-          try {
-            const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=YOUR_API_KEY&q=${word}&target=${lang}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            const translatedWord = data.data.translations[0].translatedText;
-            
-            if (
-              translatedWord.endsWith('a') || 
-              translatedWord.endsWith('ah') ||
-              translatedWord.endsWith('i') ||
-              translatedWord.endsWith('mi') ||
-              translatedWord.endsWith('ko') ||
-              translatedWord.endsWith('na') ||
-              translatedWord.endsWith('ra') ||
-              translatedWord.endsWith('ая') ||
-              translatedWord.endsWith('ья') ||
-              translatedWord.includes('녀') ||
-              translatedWord.endsWith('ė') ||
-              translatedWord.endsWith('a') ||
-              translatedWord.match(/ी$/u)
-            ) {
-              TRANSLATED_NAMES.feminine.push(translatedWord);
-            } else {
-              TRANSLATED_NAMES.masculine.push(translatedWord);
-            }
-          } catch (err) {
-            console.error(`Translation failed for ${word} to ${lang}:`, err);
-          }
-        }
-      }
+      // Use fallback translations instead of API calls
+      TRANSLATED_NAMES.masculine = FALLBACK_TRANSLATIONS.masculine;
+      TRANSLATED_NAMES.feminine = FALLBACK_TRANSLATIONS.feminine;
+      
+      // Shuffle the arrays to add variety
+      TRANSLATED_NAMES.masculine = TRANSLATED_NAMES.masculine.sort(() => Math.random() - 0.5);
+      TRANSLATED_NAMES.feminine = TRANSLATED_NAMES.feminine.sort(() => Math.random() - 0.5);
     }
 
     const FALLBACK_TRANSLATIONS = {
