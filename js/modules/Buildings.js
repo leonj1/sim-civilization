@@ -1,4 +1,4 @@
-import { OBJECT_POOL } from '../game.js';
+import { OBJECT_POOL } from './gameState.js';
 import { drawRoundedRect } from './utils.js';
 
 export const STORE_COLORS = {
