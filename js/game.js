@@ -33,6 +33,7 @@ let targetFPS = 30;
 let lastTime = 0;
 let lastRender = 0;
 let lastUIUpdate = 0;
+let isPaused = false;
 const FRAME_RATE = 30;
 const birthData = Array(60).fill(0);
 let currentBirthRate = 0;
@@ -154,14 +155,14 @@ function gameLoop(timestamp) {
     lastTime = timestamp;
 
     if (!isPaused) {
-        update();
+        update(deltaTime);
     }
 
     render();
     requestAnimationFrame(gameLoop);
 }
 
-function update() {
+function update(deltaTime) {
     // Update camera
     updateCamera();
     
@@ -215,6 +216,18 @@ function render() {
     
     // Draw UI
     drawUI();
+    
+    // Draw pause indicator if game is paused
+    if (isPaused) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.font = '48px Mojangles';
+        ctx.textAlign = 'center';
+        ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+        ctx.font = '24px Mojangles';
+        ctx.fillText('Press SPACE to resume', canvas.width / 2, canvas.height / 2 + 40);
+    }
 }
 
 function drawUI() {
@@ -287,7 +300,9 @@ function handleKeyDown(event) {
         case '1':
         case '2':
         case '3':
-            gameSpeed = parseInt(event.key);
+            if (!isPaused) {
+                gameSpeed = parseInt(event.key);
+            }
             break;
         // Add more keyboard controls
     }
@@ -310,5 +325,6 @@ export {
     tagGame,
     rpsGame,
     OBJECT_POOL,
-    init
+    init,
+    isPaused
 }; 
