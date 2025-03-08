@@ -1,4 +1,4 @@
-import { OBJECT_POOL, currentGenerationNumber } from '../game.js';
+import { OBJECT_POOL, currentGenerationNumber, offset, zoom } from '../game.js';
 import { generateRandomName, randomInt, sample } from './utils.js';
 import { THOUGHTS, getThought } from './translations.js';
 import { TRAITS } from './constants.js';
@@ -153,7 +153,8 @@ export class Person {
 
     update(deltaTime) {
         // Skip update if off screen
-        if (!this.isOnScreen()) return;
+        const gameCanvas = document.getElementById('gameCanvas');
+        if (!this.isOnScreen(offset, zoom, gameCanvas)) return;
 
         // Update thought timer
         this.thoughtUpdateTimer -= deltaTime;
@@ -342,7 +343,7 @@ export class Person {
         return true;
     }
 
-    isOnScreen() {
+    isOnScreen(offset, zoom, canvas) {
         const screenX = (this.x + offset.x) * zoom;
         const screenY = (this.y + offset.y) * zoom;
         return screenX >= -100 && screenX <= canvas.width + 100 && 
