@@ -469,6 +469,14 @@ export class Person {
     }
 
     die() {
+        // Remove from town population if in a town
+        if (this.town) {
+            const idx = this.town.population.indexOf(this);
+            if (idx >= 0) {
+                this.town.population.splice(idx, 1);
+            }
+        }
+
         // Clear all references before returning to pool
         this.clearReferences();
         
