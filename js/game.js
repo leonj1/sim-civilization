@@ -108,15 +108,16 @@ function setupEventListeners() {
     window.addEventListener('resize', () => resizeCanvas(document.getElementById('gameCanvas')));
     
     // Mouse events
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
-    canvas.addEventListener('wheel', handleMouseWheel);
+    const gameCanvas = document.getElementById('gameCanvas');
+    gameCanvas.addEventListener('mousedown', handleMouseDown);
+    gameCanvas.addEventListener('mousemove', handleMouseMove);
+    gameCanvas.addEventListener('mouseup', handleMouseUp);
+    gameCanvas.addEventListener('wheel', handleMouseWheel);
     
     // Touch events
-    canvas.addEventListener('touchstart', handleTouchStart);
-    canvas.addEventListener('touchmove', handleTouchMove);
-    canvas.addEventListener('touchend', handleTouchEnd);
+    gameCanvas.addEventListener('touchstart', handleTouchStart);
+    gameCanvas.addEventListener('touchmove', handleTouchMove);
+    gameCanvas.addEventListener('touchend', handleTouchEnd);
     
     // Keyboard events
     window.addEventListener('keydown', handleKeyDown);
