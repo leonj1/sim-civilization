@@ -80,8 +80,8 @@ export class Person {
         
         // Traits and characteristics
         this.traits = this.generateTraits();
-        this.speedMultiplier = this.traits.includes(TRAITS.FAST) ? 1.5 : 1.0;
-        this.scale = this.traits.includes(TRAITS.GIANT) ? 1.3 : 1.0;
+        this.speedMultiplier = this.traits.has(TRAITS.FAST) ? 1.5 : 1.0;
+        this.scale = this.traits.has(TRAITS.GIANT) ? 1.3 : 1.0;
         
         // Thought system
         this.currentThought = null;
@@ -606,7 +606,7 @@ export class Person {
             this.targetY = this.currentRoadTarget.y;
         } else if (this.currentBridgeTarget) {
             // Continue bridge construction
-            this.bridgeProgress += this.traits.includes(TRAITS.STRONG) ? 0.2 : 0.1;
+            this.bridgeProgress += this.traits.has(TRAITS.STRONG) ? 0.2 : 0.1;
             if (this.bridgeProgress >= 1) {
                 this.completeBridgeConstruction();
             }
@@ -629,7 +629,7 @@ export class Person {
             this.targetY = farm.y;
             // Increase farm productivity
             if (farm.productivity) {
-                farm.productivity += this.traits.includes(TRAITS.GREEN_THUMB) ? 0.2 : 0.1;
+                farm.productivity += this.traits.has(TRAITS.GREEN_THUMB) ? 0.2 : 0.1;
             }
         }
     }
@@ -655,7 +655,7 @@ export class Person {
             this.targetX = patient.x;
             this.targetY = patient.y;
             // Extend their lifespan slightly
-            patient.maxAge += this.traits.includes(TRAITS.WISE) ? 2 : 1;
+            patient.maxAge += this.traits.has(TRAITS.WISE) ? 2 : 1;
         }
     }
 
@@ -682,7 +682,7 @@ export class Person {
             this.targetX = student.x;
             this.targetY = student.y;
             // Teaching might occasionally grant a trait
-            if (Math.random() < 0.1 && this.traits.includes(TRAITS.WISE)) {
+            if (Math.random() < 0.1 && this.traits.has(TRAITS.WISE)) {
                 const teachableTrait = sample(Object.values(TRAITS));
                 student.traits.add(teachableTrait);
             }
@@ -853,4 +853,4 @@ export class Person {
 
         debugLog(`${this.name} has joined ${town.name}`, 'info');
     }
-} 
+}
