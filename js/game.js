@@ -80,11 +80,11 @@ export function init() {
     debugLog('Initializing game...', 'info');
     
     // Setup canvas
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    const gameCanvas = document.getElementById('gameCanvas');
+    const ctx = gameCanvas.getContext('2d');
     
     // Set canvas size
-    resizeCanvas(canvas);
+    resizeCanvas(gameCanvas);
     
     // Setup event listeners
     setupEventListeners();
@@ -189,15 +189,18 @@ function updateCamera() {
 }
 
 function render() {
+    const gameCanvas = document.getElementById('gameCanvas');
+    const ctx = gameCanvas.getContext('2d');
+    
     // Clear canvas
     ctx.fillStyle = '#87CEEB'; // Sky blue background
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     
     // Set up camera transform
     ctx.save();
-    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.translate(gameCanvas.width / 2, gameCanvas.height / 2);
     ctx.scale(camera.zoom, camera.zoom);
-    ctx.translate(-camera.x - canvas.width / 2 / camera.zoom, -camera.y - canvas.height / 2 / camera.zoom);
+    ctx.translate(-camera.x - gameCanvas.width / 2 / camera.zoom, -camera.y - gameCanvas.height / 2 / camera.zoom);
     
     // Draw game objects
     for (const town of towns) {
@@ -221,13 +224,13 @@ function render() {
     // Draw pause indicator if game is paused
     if (isPaused) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
         ctx.fillStyle = 'white';
         ctx.font = '48px Mojangles';
         ctx.textAlign = 'center';
-        ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+        ctx.fillText('PAUSED', gameCanvas.width / 2, gameCanvas.height / 2);
         ctx.font = '24px Mojangles';
-        ctx.fillText('Press SPACE to resume', canvas.width / 2, canvas.height / 2 + 40);
+        ctx.fillText('Press SPACE to resume', gameCanvas.width / 2, gameCanvas.height / 2 + 40);
     }
 }
 
@@ -249,7 +252,8 @@ function drawUI(deltaTime) {
 
 // Event handlers
 function handleMouseDown(event) {
-    const rect = canvas.getBoundingClientRect();
+    const gameCanvas = document.getElementById('gameCanvas');
+    const rect = gameCanvas.getBoundingClientRect();
     const x = (event.clientX - rect.left) / camera.zoom + camera.x;
     const y = (event.clientY - rect.top) / camera.zoom + camera.y;
     
