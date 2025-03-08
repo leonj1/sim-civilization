@@ -23,6 +23,10 @@ const ENDING_SYLLABLES = {
  * @throws {Error} If invalid gender is provided
  */
 export function generateRandomName(gender = GENDER.MASCULINE) {
+    // Convert legacy 'male'/'female' values to GENDER constants
+    if (gender === 'male') gender = GENDER.MASCULINE;
+    if (gender === 'female') gender = GENDER.FEMININE;
+
     // Validate gender parameter
     if (gender !== GENDER.MASCULINE && gender !== GENDER.FEMININE) {
         throw new Error(`Invalid gender: ${gender}. Must be either '${GENDER.MASCULINE}' or '${GENDER.FEMININE}'`);
