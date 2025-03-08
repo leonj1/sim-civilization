@@ -368,4 +368,42 @@ export class Person {
 
         debugLog(`${this.name} has died at age ${Math.floor(this.age)}`, 'info');
     }
+
+    updateRelation(deltaTime) {
+        if (!this.partner) {
+            this.inRelation = false;
+            return;
+        }
+
+        // Update relationship timer
+        this.relationTimer -= deltaTime;
+        
+        // Move towards partner
+        const dx = this.partner.x - this.x;
+        const dy = this.partner.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > 20) {
+            // Move closer to partner
+            const speed = 0.1 * this.speedMultiplier;
+            this.x += (dx / distance) * speed * deltaTime;
+            this.y += (dy / distance) * speed * deltaTime;
+        }
+
+        // Check if relationship should end
+        if (this.relationTimer <= 0) {
+            this.endRelationship();
+        }
+    }
+
+    endRelationship() {
+        this.inRelation = false;
+        if (this.partner) {
+            this.partner.inRelation = false;
+            this.partner.partner = null;
+            this.partner = null;
+        }
+        // Set cooldown to prevent immediate new relationship
+        this.relationTimer = randomInt(5000, 10000);
+    }
 } 
