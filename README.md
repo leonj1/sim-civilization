@@ -28,6 +28,50 @@ Sim-civilization is an engaging simulation that lets you play god and watch your
   - FPS monitoring
   - Generation naming system
 
+## Getting Started
+
+### Prerequisites
+- A modern web browser (Chrome, Firefox, Safari, or Edge)
+- Local web server (optional, but recommended)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/sim-civilization.git
+   cd sim-civilization
+   ```
+
+2. **Set up a local server** (choose one method):
+   - Using Python:
+     ```bash
+     # Python 3.x
+     python -m http.server 8000
+     # Python 2.x
+     python -m SimpleHTTPServer 8000
+     ```
+   - Using Node.js:
+     ```bash
+     npx http-server
+     ```
+   - Using PHP:
+     ```bash
+     php -S localhost:8000
+     ```
+   - Or simply use your preferred local development server
+
+3. **Access the game**
+   - If using a local server:
+     - Open your browser and navigate to `http://localhost:8000`
+   - Without a server:
+     - Double-click `index.html` to open directly in your browser
+     - Note: Some features might be limited due to browser security restrictions
+
+### Troubleshooting
+- If you see a blank screen, ensure the Mojangles font file is properly located
+- If the game doesn't load, check your browser's console for error messages
+- For CORS issues, make sure you're using a local server
+
 ## How to Play
 
 1. **Starting the Game**:
