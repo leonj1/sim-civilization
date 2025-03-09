@@ -203,31 +203,32 @@ export class ObjectPool {
     }
 }
 
+// Generation names constant
+const GENERATION_NAMES = [
+    'Founders',
+    'Pioneers',
+    'Builders',
+    'Developers',
+    'Expanders',
+    'Innovators',
+    'Reformers',
+    'Modernizers',
+    'Futurists',
+    'Visionaries'
+];
+
 // Generation name utility
 export function getGenerationName(generationNumber) {
     if (typeof generationNumber !== 'number' || isNaN(generationNumber)) {
         throw new Error('Generation number must be a valid number');
     }
-
-    const generationNames = [
-        'Founders',
-        'Pioneers',
-        'Builders',
-        'Developers',
-        'Expanders',
-        'Innovators',
-        'Reformers',
-        'Modernizers',
-        'Futurists',
-        'Visionaries'
-    ];
     
     if (generationNumber <= 0) return 'Pre-Foundation';
-    if (generationNumber > generationNames.length) {
+    if (generationNumber > GENERATION_NAMES.length) {
         return `Generation ${generationNumber}`;
     }
     
-    return generationNames[generationNumber - 1];
+    return GENERATION_NAMES[generationNumber - 1];
 }
 
 // ULID generation
