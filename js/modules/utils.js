@@ -203,6 +203,29 @@ export class ObjectPool {
     }
 }
 
+// Generation name utility
+export function getGenerationName(generationNumber) {
+    const generationNames = [
+        'Founders',
+        'Pioneers',
+        'Builders',
+        'Developers',
+        'Expanders',
+        'Innovators',
+        'Reformers',
+        'Modernizers',
+        'Futurists',
+        'Visionaries'
+    ];
+    
+    if (generationNumber <= 0) return 'Pre-Foundation';
+    if (generationNumber > generationNames.length) {
+        return `Generation ${generationNumber}`;
+    }
+    
+    return generationNames[generationNumber - 1];
+}
+
 // ULID generation
 const ENCODING = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 const ENCODING_LEN = ENCODING.length;

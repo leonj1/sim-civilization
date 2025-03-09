@@ -1855,64 +1855,64 @@
             return `${prefix} ${noun}`;
         }
       }
-      allPeopleEver.sort((a, b) => a.spawnTime - b.spawnTime);
+      people.sort((a, b) => a.spawnTime - b.spawnTime);
       peopleEntries.innerHTML = `
-                    <div style="font-size: 10px">
-                        ${t.totalPop}: ${allPeopleEver.length}<br>
-                        ${t.currentPop}: ${people.length}<br>
-                        ${t.currentGen}: ${currentGenerationNumber}<br>
-                        (${getGenerationName(currentGenerationNumber)})<br><br>
-                    </div>
-                    ${allPeopleEver.map(person => {
-        if (!person) return '';
-        const isDeceased = !people.includes(person);
-        const townInfo = person.town ? person.town.name : t.noTown;
-        const motherInfo = person.motherPartner ? person.motherPartner.name : t.unknown;
-        const fatherInfo = person.fatherPartner ? person.fatherPartner.name : t.unknown;
-        const mayorTitle = person.isMayor && person.town ? (person.gender === 'female' ? ` ${t.mayoress} ` : ` ${t.mayor} `) + person.town.name : '';
-        const occupationInfo = person.occupation || t.unemployed;
-        let activity = '';
-        if (!isDeceased) {
-          if (person.inRelation) {
-            activity = t.inRelation;
-          } else if (person.currentBridgeTarget) {
-            activity = `${t.building} (${Math.floor(person.bridgeProgress * 100)}% complete)`;
-          } else if (person.currentRoadTarget) {
-            activity = t.paving;
-          } else if (person.following) {
-            activity = `${t.following} ${person.following.name}`;
-          } else if (person.occupation === 'Cashier') {
-            activity = t.working;
-          } else if (person.occupation === 'Supplier' && person.targetX !== person.x) {
-            activity = t.delivering;
-          } else if (person.occupation === 'Child' && person.age < 12) {
-            activity = t.playing;
-          } else if (person.moveTimer > 0) {
-            activity = t.walking;
-          } else if (person.isPlayingRPS) {
-            activity = `Hit ${person.rpsChoice}${person.rpsResult ? `. ${person.rpsResult}!` : '...'}`;
-          } else {
-            activity = t.idle;
+        <div style="font-size: 10px">
+          ${t.totalPop}: ${allPeopleEver.length}<br>
+          ${t.currentPop}: ${people.length}<br>
+          ${t.currentGen}: ${currentGenerationNumber}<br>
+          (${getGenerationName(currentGenerationNumber)})<br><br>
+        </div>
+        ${people.map(person => {
+          if (!person) return '';
+          const townInfo = person.town ? person.town.name : t.noTown;
+          const motherInfo = person.motherPartner ? person.motherPartner.name : t.unknown;
+          const fatherInfo = person.fatherPartner ? person.fatherPartner.name : t.unknown;
+          const mayorTitle = person.isMayor && person.town ? 
+            (person.gender === 'female' ? ` ${t.mayoress} ` : ` ${t.mayor} `) + person.town.name : '';
+          const occupationInfo = person.occupation || t.unemployed;
+          let activity = '';
+          if (!person.deceased) {
+            if (person.inRelation) {
+              activity = t.inRelation;
+            } else if (person.currentBridgeTarget) {
+              activity = `${t.building} (${Math.floor(person.bridgeProgress * 100)}% complete)`;
+            } else if (person.currentRoadTarget) {
+              activity = t.paving;
+            } else if (person.following) {
+              activity = `${t.following} ${person.following.name}`;
+            } else if (person.occupation === 'Cashier') {
+              activity = t.working;
+            } else if (person.occupation === 'Supplier' && person.targetX !== person.x) {
+              activity = t.delivering;
+            } else if (person.occupation === 'Child' && person.age < 12) {
+              activity = t.playing;
+            } else if (person.moveTimer > 0) {
+              activity = t.walking;
+            } else if (person.isPlayingRPS) {
+              activity = `Hit ${person.rpsChoice}${person.rpsResult ? `. ${person.rpsResult}!` : '...'}`;
+            } else {
+              activity = t.idle;
+            }
           }
-        }
-        return `<div class="personEntry ${isDeceased ? 'deceased' : ''} ${person.isMayor ? 'mayor' : ''} ${person.isPlayingTag ? 'it' : ''} ${person.isPlayingRPS ? 'playing-rps' : ''}">
-                        ${person.name} - ${t.age}: ${Math.floor(person.age)}
-                        ${isDeceased ? ` (${t.deceased})` : ''}
-                        ${mayorTitle}
-                        ${!isDeceased ? `<br><span style="font-size: 9px; color: #666;">${t.currently}: ${activity}</span>` : ''}
-                        <br><span style="font-size: 9px">${t.works}: ${occupationInfo}</span>
-                        <br><span style="font-size: 9px">${t.generation}: ${person.generation}<br>(${getGenerationName(person.generation)})</span>
-                        <br><span style="font-size: 9px">${t.mother}: ${motherInfo}</span>
-                        <br><span style="font-size: 9px">${t.father}: ${fatherInfo}</span>
-                        <br><span style="font-size: 9px">${t.citizen}: ${townInfo}</span>
-                        ${person.currentThought ? `<div class="thoughts">"${person.currentThought}"</div>` : ''}
-                        ${person.traits && person.traits.length ? `<div class="traits">Traits: ${person.traits.join(', ')}</div>` : ''}
-                        ${person.isPlayingTag ? `<br><span style="font-size: 9px; color: ${person.isIt ? 'red' : '#FFD700'}">
-                        ${person.isIt ? t.it : t.playingTag}</span>` : ''}
-                        ${person.currentBridgeTarget instanceof ResidentialBuilding ? `<br><span class="capacity-info">Capacity: ${person.currentBridgeTarget.capacity}</span>` : ''}
-                    </div>`;
-      }).join('')}
-                `;
+          return `<div class="personEntry ${!people.includes(person) ? 'deceased' : ''} ${person.isMayor ? 'mayor' : ''} ${person.isPlayingTag ? 'it' : ''} ${person.isPlayingRPS ? 'playing-rps' : ''}">
+            ${person.name} - ${t.age}: ${Math.floor(person.age)}
+            ${!people.includes(person) ? ` (${t.deceased})` : ''}
+            ${mayorTitle}
+            ${!person.deceased ? `<br><span style="font-size: 9px; color: #666;">${t.currently}: ${activity}</span>` : ''}
+            <br><span style="font-size: 9px">${t.works}: ${occupationInfo}</span>
+            <br><span style="font-size: 9px">${t.generation}: ${person.generation}<br>(${getGenerationName(person.generation)})</span>
+            <br><span style="font-size: 9px">${t.mother}: ${motherInfo}</span>
+            <br><span style="font-size: 9px">${t.father}: ${fatherInfo}</span>
+            <br><span style="font-size: 9px">${t.citizen}: ${townInfo}</span>
+            ${person.currentThought ? `<div class="thoughts">"${person.currentThought}"</div>` : ''}
+            ${person.traits && person.traits.length ? `<div class="traits">Traits: ${person.traits.join(', ')}</div>` : ''}
+            ${person.isPlayingTag ? `<br><span style="font-size: 9px; color: ${person.isIt ? 'red' : '#FFD700'}">
+            ${person.isIt ? t.it : t.playingTag}</span>` : ''}
+            ${person.currentBridgeTarget instanceof ResidentialBuilding ? `<br><span class="capacity-info">Capacity: ${person.currentBridgeTarget.capacity}</span>` : ''}
+          </div>`;
+        }).join('')}
+      `;
       towns.forEach(town => {
         town.updateMayorMigration(deltaTime);
       });
