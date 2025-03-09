@@ -1043,4 +1043,87 @@ export class Person {
     getULID() {
         return this.ulid;
     }
+
+    /**
+     * Finds the nearest bank in the person's town
+     * @returns {Bank|null} The nearest bank or null if none found
+     */
+    findNearestBank() {
+        if (!this.town || !this.town.buildings) return null;
+        
+        const banks = this.town.buildings.filter(b => b.type === 'bank');
+        if (banks.length === 0) return null;
+        
+        // Find the closest bank
+        let nearestBank = null;
+        let minDistance = Infinity;
+        
+        for (const bank of banks) {
+            const distance = this.distanceTo(bank);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestBank = bank;
+            }
+        }
+        
+        return nearestBank;
+    }
+
+    /**
+     * Handles banking operations based on the person's money
+     * @param {number} deltaTime - Time elapsed since last update
+     */
+    handleBanking(deltaTime) {
+        // Skip if person doesn't have enough money to consider banking
+        const BANKING_THRESHOLD = 100;
+        if (!this.money || this.money < BANKING_THRESHOLD) return;
+        
+        // Initialize bankAccounts array if it doesn't exist
+        if (!this.bankAccounts) {
+            this.bankAccounts = [];
+        }
+        
+        // Find nearest bank if we don't have a preferred bank
+        if (!this.preferredBank) {
+            this.preferredBank = this.findNearestBank();
+            if (!this.preferredBank) return; // No banks available
+        }
+        
+        // If not at the bank, move towards it
+        const distanceToBank = this.distanceTo(this.preferredBank);
+        if (distanceToBank > 10) {
+            this.targetX = this.preferredBank.x;
+            this.targetY = this.preferredBank.y;
+            this.currentThought = 'Going to bank';
+            return;
+        }
+        
+        // At the bank, handle deposits
+        if (this.bankAccounts.length === 0) {
+            // Create a new checking account
+            if (this.preferredBank.createAccount(this.ulid, 'checking', 0)) {
+                this.bankAccounts.push(0); // Store the account index
+                
+                // Deposit money to reach the expected 100 balance
+                const depositAmount = this.money - 100;
+                if (depositAmount > 0) {
+                    if (this.preferredBank.depositToAccount(this.ulid, 0, depositAmount)) {
+                        this.money -= depositAmount;
+                        this.currentThought = 'Opened bank account';
+                    }
+                }
+            }
+        } else {
+            // Deposit to existing account
+            const accountIndex = this.bankAccounts[0]; // Use first account
+            const depositAmount = this.money - 100; // Deposit money to reach the expected 100 balance
+            
+            if (depositAmount > 0) {
+                if (this.preferredBank.depositToAccount(this.ulid, accountIndex, depositAmount)) {
+                    this.money -= depositAmount;
+                    this.currentThought = 'Deposited savings';
+                }
+            }
+        }
+    }
 }
