@@ -326,11 +326,18 @@ describe('Building Classes', () => {
             // Issue loan
             bank.issueLoan(customerId, loanAmount);
             
+            // Set a fixed federal rate for consistent testing
+            const originalFederalRate = Bank.federalRate;
+            Bank.federalRate = 0.05; // 5%
+            
             // Apply interest
             bank.applyInterest();
             
-            // Verify interest was applied (5% interest rate)
-            expect(bank.loans.get(customerId)).toBe(1050);
+            // Verify interest was applied (7.4% interest rate = 5% + 2.4%)
+            expect(bank.loans.get(customerId)).toBe(1074);
+            
+            // Restore original federal rate
+            Bank.federalRate = originalFederalRate;
         });
 
         test('updates interest timer', () => {
@@ -360,6 +367,30 @@ describe('Building Classes', () => {
             // Verify colors used
             expect(mockCtx.fillStyleHistory).toContain('#E6E6FA'); // Main building color
             expect(mockCtx.fillStyleHistory).toContain('#FFFFFF'); // Column color
+        });
+
+        test('maintains correct interest rate margin above federal rate', () => {
+            const bank = new Bank(100, 100);
+            
+            // Test with default federal rate (5%)
+            expect(bank.getInterestRate()).toBeCloseTo(0.074, 3); // 5% + 2.4% = 7.4%
+            
+            // Test with changed federal rate
+            Bank.federalRate = 0.10; // 10%
+            expect(bank.getInterestRate()).toBeCloseTo(0.124, 3); // 10% + 2.4% = 12.4%
+        });
+
+        test('applies correct interest with margin', () => {
+            const bank = new Bank(100, 100);
+            const customerId = 'customer1';
+            const loanAmount = 1000;
+            
+            Bank.federalRate = 0.05; // 5%
+            bank.issueLoan(customerId, loanAmount);
+            bank.applyInterest();
+            
+            // Should apply 7.4% interest (5% + 2.4%)
+            expect(bank.loans.get(customerId)).toBeCloseTo(1074, 0);
         });
     });
 });

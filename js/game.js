@@ -92,6 +92,13 @@ export function init() {
     // Create initial game objects
     createInitialTown();
     
+    // Add interest rate control
+    document.getElementById('interestControl').addEventListener('input', e => {
+        const rate = parseFloat(e.target.value) / 100;  // Convert percentage to decimal
+        Bank.federalRate = rate;
+        document.getElementById('interestLevel').textContent = e.target.value;
+    });
+    
     // Start game loop
     requestAnimationFrame(gameLoop);
     
@@ -331,5 +338,6 @@ export {
     rpsGame,
     OBJECT_POOL,
     init,
-    isPaused
+    isPaused,
+    Bank
 }; 

@@ -458,12 +458,14 @@ export class ResidentialBuilding extends PublicBuilding {
 // Bank configuration constants
 const BANK_CONFIG = {
     DEFAULT_FUNDS: 10000,
-    INTEREST_RATE: 0.05,  // 5% interest rate
     INTEREST_INTERVAL: 10000,  // 10 seconds
-    LOAN_LIMIT: 5000
+    LOAN_LIMIT: 5000,
+    INTEREST_MARGIN: 0.024  // 2.4% margin above federal rate
 };
 
 export class Bank extends Building {
+    static federalRate = 0.05;  // 5% default federal interest rate
+    
     constructor(x, y) {
         super(x, y);
         this.type = 'bank';
@@ -472,6 +474,14 @@ export class Bank extends Building {
         this.loans = new Map();  // Map of customer ID to loan amount
         this.interestTimer = BANK_CONFIG.INTEREST_INTERVAL;
         this.lastInterestTime = Date.now();
+    }
+    
+    /**
+     * Gets the current interest rate (federal rate + margin)
+     * @returns {number} The current interest rate
+     */
+    getInterestRate() {
+        return Bank.federalRate + BANK_CONFIG.INTEREST_MARGIN;
     }
 
     /**
@@ -542,7 +552,7 @@ export class Bank extends Building {
      */
     applyInterest() {
         for (const [customerId, amount] of this.loans.entries()) {
-            const interest = amount * BANK_CONFIG.INTEREST_RATE;
+            const interest = amount * this.getInterestRate();
             this.loans.set(customerId, amount + interest);
         }
         this.lastInterestTime = Date.now();
