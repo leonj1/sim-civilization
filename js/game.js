@@ -37,6 +37,7 @@ let isPaused = false;
 const FRAME_RATE = 30;
 const birthData = Array(60).fill(0);
 let currentBirthRate = 0;
+let federalInterestRate = 5.0;
 
 // Game state
 const tagGame = {
@@ -130,6 +131,12 @@ function setupEventListeners() {
     
     // Keyboard events
     window.addEventListener('keydown', handleKeyDown);
+    
+    // Add interest rate control
+    document.getElementById('interestControl').addEventListener('change', e => {
+        const rate = parseFloat(e.target.value);
+        Bank.federalRate = rate / 100;  // Convert percentage to decimal
+    });
 }
 
 function createInitialTown() {
@@ -341,5 +348,6 @@ export {
     OBJECT_POOL,
     init,
     isPaused,
-    Bank
+    Bank,
+    federalInterestRate
 };
