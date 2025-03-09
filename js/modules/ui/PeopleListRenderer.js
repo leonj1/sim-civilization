@@ -1,5 +1,6 @@
 import { getGenerationName } from '../utils.js';
 import { ResidentialBuilding } from '../buildings/index.js';
+import { OCCUPATIONS, AGE_THRESHOLDS } from '../constants.js';
 
 export class PeopleListRenderer {
     constructor(translations) {
@@ -38,9 +39,9 @@ export class PeopleListRenderer {
         }
         if (person.currentRoadTarget) return this.t.paving;
         if (person.following) return `${this.t.following} ${person.following.name}`;
-        if (person.occupation === 'Cashier') return this.t.working;
-        if (person.occupation === 'Supplier' && person.targetX !== person.x) return this.t.delivering;
-        if (person.occupation === 'Child' && person.age < 12) return this.t.playing;
+        if (person.occupation === OCCUPATIONS.CASHIER) return this.t.working;
+        if (person.occupation === OCCUPATIONS.SUPPLIER && person.targetX !== person.x) return this.t.delivering;
+        if (person.occupation === OCCUPATIONS.CHILD && person.age < AGE_THRESHOLDS.CHILD) return this.t.playing;
         if (person.moveTimer > 0) return this.t.walking;
         if (person.isPlayingRPS) {
             return `Hit ${person.rpsChoice}${person.rpsResult ? `. ${person.rpsResult}!` : '...'}`;
