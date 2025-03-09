@@ -66,10 +66,15 @@ export class Town {
         } else {
             happinessChange += 0.5; // Increase when resources are high
         }
+
+        // Building effect
+        if (buildingFactor < 1) {
+            happinessChange -= 0.25; // Small penalty when no buildings
+        }
         
         // Population density effect
         if (populationDensity > 10) {
-            happinessChange -= 1.0; // Double the penalty for overcrowding
+            happinessChange -= 1.0; // Double penalty for overcrowding
         }
         
         // Apply time factor
