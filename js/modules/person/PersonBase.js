@@ -2,6 +2,14 @@ import { OBJECT_POOL, currentGenerationNumber } from '../gameState.js';
 import { generateULID, generateRandomName } from '../utils.js';
 import { TRAITS } from '../constants.js';
 
+// Age constants
+const MIN_AGE_ADJUSTMENT = 6;
+const FEMALE_MIN_AGE = 8;
+const MALE_MIN_AGE = 15;
+const FEMALE_AGE_PROBABILITY = 0.3;
+const MAX_AGE_RANDOM_FACTOR = 30;
+const MIN_MAX_AGE = 70;
+
 export class PersonBase {
     constructor(x, y, gender) {
         const pooledPerson = OBJECT_POOL.people.pop();
@@ -23,8 +31,10 @@ export class PersonBase {
         this.name = generateRandomName(gender);
         
         // Age and lifecycle
-        this.age = Math.floor(Math.random() * 6) + (gender === 'female' && Math.random() < 0.3 ? 8 : 15);
-        this.maxAge = Math.random() * 30 + 70;
+        this.age = Math.floor(Math.random() * MIN_AGE_ADJUSTMENT) + 
+                  (gender === 'female' && Math.random() < FEMALE_AGE_PROBABILITY ? 
+                   FEMALE_MIN_AGE : MALE_MIN_AGE);
+        this.maxAge = Math.random() * MAX_AGE_RANDOM_FACTOR + MIN_MAX_AGE;
         
         // State flags
         this.isPlayingTag = false;
