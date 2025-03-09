@@ -1,4 +1,4 @@
-import { getGenerationName } from '../utils.js';
+import { getGenerationName, GENDER } from '../utils.js';
 import { ResidentialBuilding } from '../buildings/index.js';
 import { OCCUPATIONS, AGE_THRESHOLDS } from '../constants.js';
 
@@ -49,13 +49,25 @@ export class PeopleListRenderer {
         return this.t.idle;
     }
 
+    /**
+     * Gets the appropriate mayor title based on person's gender and town
+     * @param {Object} person - The person object
+     * @returns {string} The formatted mayor title or empty string
+     */
+    getMayorTitle(person) {
+        if (!person.isMayor || !person.town) {
+            return '';
+        }
+
+        const titleType = person.gender === 'female' ? this.t.mayoress : this.t.mayor;
+        return ` ${titleType} ${person.town.name}`;
+    }
+
     renderPersonEntry(person) {
         const townInfo = person.town ? person.town.name : this.t.noTown;
         const motherInfo = person.motherPartner ? person.motherPartner.name : this.t.unknown;
         const fatherInfo = person.fatherPartner ? person.fatherPartner.name : this.t.unknown;
-        const mayorTitle = person.isMayor && person.town 
-            ? (person.gender === 'female' ? ` ${this.t.mayoress} ` : ` ${this.t.mayor} `) + person.town.name 
-            : '';
+        const mayorTitle = this.getMayorTitle(person);
         const occupationInfo = person.occupation || this.t.unemployed;
         const activity = this.getPersonActivity(person);
 
