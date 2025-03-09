@@ -44,7 +44,7 @@ export class PeopleListRenderer {
         if (person.occupation === OCCUPATIONS.CHILD && person.age < AGE_THRESHOLDS.CHILD) return this.t.playing;
         if (person.moveTimer > 0) return this.t.walking;
         if (person.isPlayingRPS) {
-            return `Hit ${person.rpsChoice}${person.rpsResult ? `. ${person.rpsResult}!` : '...'}`;
+            return `Chose ${person.rpsChoice}${person.rpsResult ? `. ${person.rpsResult}!` : '...'}`;
         }
         return this.t.idle;
     }

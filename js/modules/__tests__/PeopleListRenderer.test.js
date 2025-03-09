@@ -52,6 +52,17 @@ describe('PeopleListRenderer', () => {
         
         person.inRelation = false;
         expect(renderer.getPersonActivity(person)).toBe('Working');
+        
+        // Test RPS game activity
+        // Reset other properties that might take precedence
+        person.inRelation = false;
+        person.occupation = null;
+        person.isPlayingRPS = true;
+        person.rpsChoice = 'Rock';
+        expect(renderer.getPersonActivity(person)).toBe('Chose Rock...');
+        
+        person.rpsResult = 'Win';
+        expect(renderer.getPersonActivity(person)).toBe('Chose Rock. Win!');
     });
 
     test('renderPersonEntry includes all required person information', () => {
