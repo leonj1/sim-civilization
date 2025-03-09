@@ -1,6 +1,6 @@
 // Import modules
 import { Person } from './modules/Person.js';
-import { Building, Store, PublicBuilding, ResidentialBuilding } from './modules/Buildings.js';
+import { Building, Store, PublicBuilding, ResidentialBuilding, Bank } from './modules/Buildings.js';
 import { Town } from './modules/Town.js';
 import { MarkovChain } from './modules/MarkovChain.js';
 import { TRANSLATIONS, THOUGHTS } from './modules/translations.js';
@@ -91,6 +91,15 @@ export function init() {
     
     // Create initial game objects
     createInitialTown();
+    
+    // Add interest rate control
+    document.getElementById('interestControl').addEventListener('input', e => {
+        const rate = parseFloat(e.target.value) / 100;  // Convert percentage to decimal
+        if (!isNaN(rate) && rate >= 0 && rate <= 1) {
+            Bank.federalRate = rate;
+        }
+        document.getElementById('interestLevel').textContent = e.target.value;
+    });
     
     // Start game loop
     requestAnimationFrame(gameLoop);
@@ -331,5 +340,6 @@ export {
     rpsGame,
     OBJECT_POOL,
     init,
-    isPaused
-}; 
+    isPaused,
+    Bank
+};
