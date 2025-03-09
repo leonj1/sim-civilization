@@ -72,6 +72,35 @@ describe('PeopleListRenderer', () => {
         expect(entry).toContain('Springfield');
         expect(entry).toContain('Kind, Smart');
     });
+    
+    test('escapeHtml properly escapes HTML special characters', () => {
+        const testCases = [
+            { input: '<script>alert("XSS")</script>', expected: '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;' },
+            { input: "Let's use some <b>HTML</b>", expected: "Let&#039;s use some &lt;b&gt;HTML&lt;/b&gt;" },
+            { input: 'A & B are friends', expected: 'A &amp; B are friends' },
+            { input: null, expected: '' },
+            { input: undefined, expected: '' }
+        ];
+        
+        testCases.forEach(({ input, expected }) => {
+            expect(renderer.escapeHtml(input)).toBe(expected);
+        });
+    });
+    
+    test('renderPersonEntry escapes HTML in thoughts', () => {
+        const person = {
+            name: 'John Doe',
+            age: 25,
+            generation: 1,
+            occupation: 'Farmer',
+            town: { name: 'Springfield' },
+            currentThought: '<script>alert("XSS")</script>'
+        };
+
+        const entry = renderer.renderPersonEntry(person);
+        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;');
+        expect(entry).not.toContain('<script>alert("XSS")</script>');
+    });
 
     describe('renderPeopleList', () => {
         // Table-driven test cases

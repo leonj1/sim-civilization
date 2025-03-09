@@ -5,6 +5,21 @@ export class PeopleListRenderer {
     constructor(translations) {
         this.t = translations;
     }
+    
+    /**
+     * Escapes HTML special characters to prevent XSS attacks
+     * @param {string} unsafe - The unsafe string that might contain HTML special characters
+     * @returns {string} - The escaped string safe for insertion into HTML
+     */
+    escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
     renderPopulationStats(allPeopleEver, people, currentGenerationNumber) {
         return `
@@ -53,7 +68,7 @@ export class PeopleListRenderer {
                 <br><span style="font-size: 9px">${this.t.mother}: ${motherInfo}</span>
                 <br><span style="font-size: 9px">${this.t.father}: ${fatherInfo}</span>
                 <br><span style="font-size: 9px">${this.t.citizen}: ${townInfo}</span>
-                ${person.currentThought ? `<div class="thoughts">"${person.currentThought}"</div>` : ''}
+                ${person.currentThought ? `<div class="thoughts">"${this.escapeHtml(person.currentThought)}"</div>` : ''}
                 ${person.traits && person.traits.length ? `<div class="traits">Traits: ${person.traits.join(', ')}</div>` : ''}
                 ${person.isPlayingTag ? `<br><span style="font-size: 9px; color: ${person.isIt ? 'red' : '#FFD700'}">
                     ${person.isIt ? this.t.it : this.t.playingTag}</span>` : ''}
