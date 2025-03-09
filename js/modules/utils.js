@@ -201,4 +201,29 @@ export class ObjectPool {
         this.objects = [];
         this.activeObjects.clear();
     }
-} 
+}
+
+// ULID generation
+const ENCODING = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+const ENCODING_LEN = ENCODING.length;
+const TIME_LEN = 10;
+const RANDOM_LEN = 16;
+
+export function generateULID() {
+    const time = Date.now();
+    let str = '';
+    
+    // Time component
+    let t = time;
+    for (let i = 0; i < TIME_LEN; i++) {
+        str = ENCODING[t % ENCODING_LEN] + str;
+        t = Math.floor(t / ENCODING_LEN);
+    }
+    
+    // Random component
+    for (let i = 0; i < RANDOM_LEN; i++) {
+        str += ENCODING[Math.floor(Math.random() * ENCODING_LEN)];
+    }
+    
+    return str;
+}

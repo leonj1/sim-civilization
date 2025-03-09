@@ -1,5 +1,5 @@
 import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain, gameCanvas, towns } from './gameState.js';
-import { generateRandomName, randomInt, sample } from './utils.js';
+import { generateULID, generateRandomName, randomInt, sample } from './utils.js';
 import { THOUGHTS, getThought } from './translations.js';
 import { TRAITS, COLORS } from './constants.js';
 import { debugLog } from './utils.js';
@@ -27,6 +27,9 @@ export class Person {
     }
 
     reset(x, y, gender) {
+        // Always generate a new ULID, even for pooled objects
+        this.ulid = generateULID();
+        
         // Basic properties
         this.x = x;
         this.y = y;
@@ -855,5 +858,10 @@ export class Person {
         this.targetY = town.y + Math.sin(angle) * distance;
 
         debugLog(`${this.name} has joined ${town.name}`, 'info');
+    }
+
+    // Add a method to get the ULID
+    getULID() {
+        return this.ulid;
     }
 }
