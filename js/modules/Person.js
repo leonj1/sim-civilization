@@ -114,6 +114,8 @@ export class Person {
         this.hunger = 0;
         this.inventory = new Map();
         this.lastMealTime = Date.now();
+        this.lastParentFoodRequest = 0;  // Add tracking for last food request
+        this.parentFoodRequestCooldown = 5000; // 5 seconds cooldown
     }
 
     /**
@@ -389,6 +391,17 @@ export class Person {
         this.hunger += deltaTime * 0.01; // Increase hunger over time
         if (this.hunger >= 70) {
             this.findFood();
+        }
+
+        // Adjust parent food request cooldown based on hunger severity
+        if (this.age < 13 && this.parent) {
+            if (this.hunger > 90) {
+                this.parentFoodRequestCooldown = 3000; // More frequent requests when very hungry
+            } else if (this.hunger > 80) {
+                this.parentFoodRequestCooldown = 4000;
+            } else {
+                this.parentFoodRequestCooldown = 5000; // Default cooldown
+            }
         }
     }
 
@@ -1163,6 +1176,16 @@ export class Person {
 
         // If we're a child, try to get food from parent
         if (this.age < 13 && this.parent) {
+            const currentTime = Date.now();
+            
+            // Check if we're still in cooldown from last request
+            if (currentTime - this.lastParentFoodRequest < this.parentFoodRequestCooldown) {
+                // Move towards parent while waiting
+                this.targetX = this.parent.x;
+                this.targetY = this.parent.y;
+                return false;
+            }
+
             const parentDistance = Math.hypot(this.x - this.parent.x, this.y - this.parent.y);
             
             // Move towards parent
@@ -1172,10 +1195,33 @@ export class Person {
             if (parentDistance < 20) {
                 // Request food from parent
                 if (this.parent.inventory.size > 0 || this.parent.money >= 10) {
+                    // Parent has resources to help
+                    if (this.parent.inventory.size > 0) {
+                        // Transfer food from parent's inventory
+                        const [food, quantity] = this.parent.inventory.entries().next().value;
+                        this.parent.inventory.set(food, quantity - 1);
+                        if (this.parent.inventory.get(food) <= 0) {
+                            this.parent.inventory.delete(food);
+                        }
+                        this.inventory.set(food, (this.inventory.get(food) || 0) + 1);
+                    } else {
+                        // Parent spends money to feed child
+                        this.parent.money -= 10;
+                    }
+                    
                     this.hunger = Math.max(0, this.hunger - 40);
                     this.happiness += 10;
                     this.currentThought = 'HAPPY_FED';
+                    this.lastParentFoodRequest = currentTime;
                     return true;
+                } else {
+                    // Parent can't help, set longer cooldown
+                    this.lastParentFoodRequest = currentTime;
+                    this.parentFoodRequestCooldown = 15000; // Longer cooldown when parent can't help
+                    this.currentThought = 'HUNGRY';
+                    
+                    // Make parent aware of child's hunger
+                    this.parent.currentThought = 'WORRIED_ABOUT_CHILD';
                 }
             }
             return false;
