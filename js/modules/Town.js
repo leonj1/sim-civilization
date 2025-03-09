@@ -1,4 +1,4 @@
-import { OBJECT_POOL } from '../game.js';
+import { OBJECT_POOL } from './gameState.js';
 import { Building, Store, PublicBuilding, ResidentialBuilding } from './Buildings.js';
 import { generateRandomName } from './utils.js';
 
@@ -57,12 +57,25 @@ export class Town {
         const buildingFactor = this.buildings.length > 0 ? 1 : 0.5;
         const populationDensity = this.population / Math.max(1, this.buildings.length);
         
-        let happinessChange = (
-            (resourceFactor - 0.5) * 10 +
-            (buildingFactor - 0.5) * 5 +
-            (populationDensity > 10 ? -5 : 0)
-        ) * deltaTime * 0.001;
+        // Calculate base happiness change
+        let happinessChange = 0;
         
+        // Resource effect
+        if (resourceFactor < 0.5) {
+            happinessChange -= 0.5; // Decrease when resources are low
+        } else {
+            happinessChange += 0.5; // Increase when resources are high
+        }
+        
+        // Population density effect
+        if (populationDensity > 10) {
+            happinessChange -= 1.0; // Double the penalty for overcrowding
+        }
+        
+        // Apply time factor
+        happinessChange = happinessChange * deltaTime * 0.001;
+        
+        // Update happiness with bounds
         this.happiness = Math.max(0, Math.min(100, this.happiness + happinessChange));
     }
 
