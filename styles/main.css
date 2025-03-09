@@ -271,6 +271,31 @@ body {
     transform: rotate(45deg);
 }
 
+.stats-container {
+    font-size: 10px;
+}
+
+.person-activity {
+    font-size: 9px;
+    color: #666;
+}
+
+.person-detail {
+    font-size: 9px;
+}
+
+.tag-status {
+    font-size: 9px;
+}
+
+.tag-it {
+    color: red;
+}
+
+.tag-playing {
+    color: #FFD700;
+}
+
 .personEntry .thoughts {
     font-size: 9px;
     font-style: italic;
@@ -353,4 +378,4 @@ body {
                 1px  1px 0 #fff;
     font-family: Arial, sans-serif;
     unicode-range: U+0000-FFFF;
-} 
+}

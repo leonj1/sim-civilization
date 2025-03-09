@@ -1,20 +1,56 @@
 import { Town } from '../Town.js';
 import { Building, Store, PublicBuilding, ResidentialBuilding } from '../buildings/index.js';
+import { Person } from '../person/Person.js';
 import { jest } from '@jest/globals';
 
 // Mock the gameState module
 jest.mock('../gameState.js', () => ({
     OBJECT_POOL: {
         buildings: [],
-        people: []
+        people: [],
+        maxPoolSize: 100
     },
-    towns: []
+    towns: [],
+    currentGenerationNumber: 1
 }));
+
+// Get a reference to the mocked OBJECT_POOL
+import { OBJECT_POOL } from '../gameState.js';
 
 // Mock the utils module for deterministic name generation
 jest.mock('../utils.js', () => ({
     generateRandomName: () => 'TestTown',
-    randomInt: (min, max) => min
+    randomInt: (min, max) => min,
+    generateULID: () => 'TEST-ULID-' + Math.random().toString(36).substring(2, 15)
+}));
+
+// Mock the constants module
+jest.mock('../constants.js', () => ({
+    TRAITS: {
+        FAST: 'FAST',
+        STRONG: 'STRONG',
+        WISE: 'WISE',
+        GREEN_THUMB: 'GREEN_THUMB',
+        GIANT: 'GIANT'
+    },
+    COLORS: {
+        WATER: 'blue',
+        GRASS: 'green',
+        SAND: 'yellow',
+        MOUNTAIN: 'gray'
+    },
+    OCCUPATION_WAGES: {
+        'Doctor': 50,
+        'Guard': 30,
+        'Builder': 35,
+        'Farmer': 25,
+        'Merchant': 40,
+        'Teacher': 35,
+        'Priest': 30,
+        'Artist': 25,
+        'Child': 0
+    },
+    WAGE_PAYMENT_INTERVAL: 10000
 }));
 
 describe('Town', () => {
@@ -303,6 +339,45 @@ describe('Town', () => {
                 expect(nearest.x).toBe(expectedNearest.x);
                 expect(nearest.y).toBe(expectedNearest.y);
             }
+        });
+    });
+
+    describe('population management', () => {
+        test('deceased people are removed from town population', () => {
+            // Clear the mock object pool before the test
+            OBJECT_POOL.people = [];
+            
+            const town = new Town(100, 200);
+            
+            // Add some people to the town
+            const livingPerson1 = new Person(0, 0, 'male');
+            const livingPerson2 = new Person(0, 0, 'female');
+            const deceasedPerson = new Person(0, 0, 'male');
+            
+            // Add people to the OBJECT_POOL.people array
+            OBJECT_POOL.people.push(livingPerson1);
+            OBJECT_POOL.people.push(livingPerson2);
+            OBJECT_POOL.people.push(deceasedPerson);
+            
+            town.addPerson(livingPerson1);
+            town.addPerson(livingPerson2);
+            town.addPerson(deceasedPerson);
+            
+            expect(town.people.length).toBe(3);
+            
+            // Simulate death by removing from OBJECT_POOL.people
+            const indexInPool = OBJECT_POOL.people.indexOf(deceasedPerson);
+            if (indexInPool > -1) {
+                OBJECT_POOL.people.splice(indexInPool, 1);
+            }
+            
+            // Update town population
+            town.updatePopulation();
+            
+            expect(town.people.length).toBe(2);
+            expect(town.people).toContain(livingPerson1);
+            expect(town.people).toContain(livingPerson2);
+            expect(town.people).not.toContain(deceasedPerson);
         });
     });
 });

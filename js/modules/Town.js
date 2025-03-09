@@ -99,6 +99,14 @@ export class Town {
     }
 
     updatePopulation() {
+        // Remove deceased people (those not in OBJECT_POOL.people)
+        for (let i = this.people.length - 1; i >= 0; i--) {
+            const person = this.people[i];
+            if (!OBJECT_POOL.people.includes(person)) {
+                this.removePerson(person);
+            }
+        }
+        
         this.population = this.people.length;
     }
 
@@ -209,4 +217,4 @@ export class Town {
         
         return nearest;
     }
-} 
+}

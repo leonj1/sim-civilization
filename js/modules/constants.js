@@ -29,3 +29,24 @@ export const OCCUPATION_WAGES = {
 
 // How often wages are paid (in milliseconds)
 export const WAGE_PAYMENT_INTERVAL = 10000; // 10 seconds
+
+export const OCCUPATIONS = {
+    CASHIER: 'Cashier',
+    SUPPLIER: 'Supplier',
+    CHILD: 'Child',
+    FARMER: 'Farmer',
+    BUILDER: 'Builder',
+    GUARD: 'Guard',
+    DOCTOR: 'Doctor',
+    MERCHANT: 'Merchant',
+    TEACHER: 'Teacher',
+    PRIEST: 'Priest',
+    ARTIST: 'Artist',
+    UNEMPLOYED: 'Unemployed'
+};
+
+export const AGE_THRESHOLDS = {
+    CHILD: 12,
+    TEEN: 13,
+    ADULT: 18
+};
