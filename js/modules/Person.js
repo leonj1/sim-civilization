@@ -1,8 +1,7 @@
 import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain, gameCanvas, towns } from './gameState.js';
-import { generateULID, generateRandomName, randomInt, sample } from './utils.js';
+import { generateULID, generateRandomName, randomInt, sample, debugLog } from './utils.js';
 import { THOUGHTS, getThought } from './translations.js';
 import { TRAITS, COLORS } from './constants.js';
-import { debugLog } from './utils.js';
 
 const OCCUPATIONS = [
     'Farmer',

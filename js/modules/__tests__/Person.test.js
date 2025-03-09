@@ -1,6 +1,14 @@
 // Import the mocks first
 jest.mock('../gameState.js');
-jest.mock('../utils.js');
+jest.mock('../utils.js', () => ({
+  generateULID: jest.fn().mockReturnValue('test-ulid-123'),
+  generateRandomName: jest.fn().mockImplementation((gender) => 
+    gender === 'male' || gender === 'masculine' ? 'TestMaleName' : 'TestFemaleName'
+  ),
+  randomInt: jest.fn().mockReturnValue(5),
+  sample: jest.fn().mockImplementation(arr => arr[0]),
+  debugLog: jest.fn()
+}));
 jest.mock('../translations.js');
 jest.mock('../constants.js');
 

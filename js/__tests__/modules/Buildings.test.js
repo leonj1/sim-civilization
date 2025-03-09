@@ -393,4 +393,54 @@ describe('Building Classes', () => {
             expect(bank.loans.get(customerId)).toBeCloseTo(1075, 0);
         });
     });
+
+    describe('Bank Account Management', () => {
+        let bank;
+        const testUlid = '01HF2XVZN3JKQP6GY8M4D5T7W9';
+
+        beforeEach(() => {
+            bank = new Bank(100, 100);
+        });
+
+        test('creates checking and savings accounts', () => {
+            expect(bank.createAccount(testUlid, 'checking', 500)).toBe(true);
+            expect(bank.createAccount(testUlid, 'savings', 1000)).toBe(true);
+            
+            const accounts = bank.getAccounts(testUlid);
+            expect(accounts.length).toBe(2);
+            expect(accounts[0].type).toBe('checking');
+            expect(accounts[0].balance).toBe(500);
+            expect(accounts[1].type).toBe('savings');
+            expect(accounts[1].balance).toBe(1000);
+        });
+
+        test('enforces minimum balance requirements', () => {
+            expect(bank.createAccount(testUlid, 'savings', 50)).toBe(false);
+            expect(bank.createAccount(testUlid, 'savings', 100)).toBe(true);
+        });
+
+        test('handles deposits and withdrawals', () => {
+            bank.createAccount(testUlid, 'checking', 1000);
+            
+            expect(bank.depositToAccount(testUlid, 0, 500)).toBe(true);
+            expect(bank.getAccountBalance(testUlid, 0)).toBe(1500);
+            
+            expect(bank.withdrawFromAccount(testUlid, 0, 2000)).toBe(false);
+            expect(bank.withdrawFromAccount(testUlid, 0, 500)).toBe(true);
+            expect(bank.getAccountBalance(testUlid, 0)).toBe(1000);
+        });
+
+        test('applies correct interest rates', () => {
+            bank.createAccount(testUlid, 'checking', 1000);
+            bank.createAccount(testUlid, 'savings', 1000);
+            
+            // Simulate interest interval passing
+            bank.interestTimer = 0;
+            bank.update(10000); // Use 10000ms (10 seconds) which is the default interest interval
+            
+            const accounts = bank.getAccounts(testUlid);
+            expect(accounts[0].balance).toBeCloseTo(1001, 1); // 0.1% interest
+            expect(accounts[1].balance).toBeCloseTo(1020, 1); // 2% interest
+        });
+    });
 });
