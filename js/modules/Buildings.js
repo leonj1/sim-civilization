@@ -460,7 +460,7 @@ const BANK_CONFIG = {
     DEFAULT_FUNDS: 10000,
     INTEREST_INTERVAL: 10000,  // 10 seconds
     LOAN_LIMIT: 5000,
-    INTEREST_MARGIN: 0.024  // 2.4% margin above federal rate
+    INTEREST_MARGIN: 0.025  // 2.5% margin above federal rate
 };
 
 export class Bank extends Building {

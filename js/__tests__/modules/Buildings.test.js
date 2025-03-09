@@ -333,8 +333,8 @@ describe('Building Classes', () => {
             // Apply interest
             bank.applyInterest();
             
-            // Verify interest was applied (7.4% interest rate = 5% + 2.4%)
-            expect(bank.loans.get(customerId)).toBe(1074);
+            // Verify interest was applied (7.5% interest rate = 5% + 2.5%)
+            expect(bank.loans.get(customerId)).toBe(1075);
             
             // Restore original federal rate
             Bank.federalRate = originalFederalRate;
@@ -373,11 +373,11 @@ describe('Building Classes', () => {
             const bank = new Bank(100, 100);
             
             // Test with default federal rate (5%)
-            expect(bank.getInterestRate()).toBeCloseTo(0.074, 3); // 5% + 2.4% = 7.4%
+            expect(bank.getInterestRate()).toBeCloseTo(0.075, 3); // 5% + 2.5% = 7.5%
             
             // Test with changed federal rate
             Bank.federalRate = 0.10; // 10%
-            expect(bank.getInterestRate()).toBeCloseTo(0.124, 3); // 10% + 2.4% = 12.4%
+            expect(bank.getInterestRate()).toBeCloseTo(0.125, 3); // 10% + 2.5% = 12.5%
         });
 
         test('applies correct interest with margin', () => {
@@ -389,8 +389,8 @@ describe('Building Classes', () => {
             bank.issueLoan(customerId, loanAmount);
             bank.applyInterest();
             
-            // Should apply 7.4% interest (5% + 2.4%)
-            expect(bank.loans.get(customerId)).toBeCloseTo(1074, 0);
+            // Should apply 7.5% interest (5% + 2.5%)
+            expect(bank.loans.get(customerId)).toBeCloseTo(1075, 0);
         });
     });
 });
