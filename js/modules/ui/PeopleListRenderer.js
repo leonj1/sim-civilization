@@ -23,7 +23,7 @@ export class PeopleListRenderer {
 
     renderPopulationStats(allPeopleEver, people, currentGenerationNumber) {
         return `
-            <div style="font-size: 10px">
+            <div class="stats-container">
                 ${this.t.totalPop}: ${allPeopleEver.length}<br>
                 ${this.t.currentPop}: ${people.length}<br>
                 ${this.t.currentGen}: ${currentGenerationNumber}<br>
@@ -62,15 +62,15 @@ export class PeopleListRenderer {
             <div class="personEntry ${person.isMayor ? 'mayor' : ''} ${person.isPlayingTag ? 'it' : ''} ${person.isPlayingRPS ? 'playing-rps' : ''}">
                 ${person.name} - ${this.t.age}: ${Math.floor(person.age)}
                 ${mayorTitle}
-                <br><span style="font-size: 9px; color: #666;">${this.t.currently}: ${activity}</span>
-                <br><span style="font-size: 9px">${this.t.works}: ${occupationInfo}</span>
-                <br><span style="font-size: 9px">${this.t.generation}: ${person.generation}<br>(${getGenerationName(person.generation)})</span>
-                <br><span style="font-size: 9px">${this.t.mother}: ${motherInfo}</span>
-                <br><span style="font-size: 9px">${this.t.father}: ${fatherInfo}</span>
-                <br><span style="font-size: 9px">${this.t.citizen}: ${townInfo}</span>
+                <br><span class="person-activity">${this.t.currently}: ${activity}</span>
+                <br><span class="person-detail">${this.t.works}: ${occupationInfo}</span>
+                <br><span class="person-detail">${this.t.generation}: ${person.generation}<br>(${getGenerationName(person.generation)})</span>
+                <br><span class="person-detail">${this.t.mother}: ${motherInfo}</span>
+                <br><span class="person-detail">${this.t.father}: ${fatherInfo}</span>
+                <br><span class="person-detail">${this.t.citizen}: ${townInfo}</span>
                 ${person.currentThought ? `<div class="thoughts">"${this.escapeHtml(person.currentThought)}"</div>` : ''}
                 ${person.traits && person.traits.length ? `<div class="traits">Traits: ${person.traits.join(', ')}</div>` : ''}
-                ${person.isPlayingTag ? `<br><span style="font-size: 9px; color: ${person.isIt ? 'red' : '#FFD700'}">
+                ${person.isPlayingTag ? `<br><span class="tag-status ${person.isIt ? 'tag-it' : 'tag-playing'}">
                     ${person.isIt ? this.t.it : this.t.playingTag}</span>` : ''}
                 ${person.currentBridgeTarget instanceof ResidentialBuilding ? 
                     `<br><span class="capacity-info">Capacity: ${person.currentBridgeTarget.capacity}</span>` : ''}
