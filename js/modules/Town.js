@@ -3,6 +3,14 @@ import { Building, Store, PublicBuilding, ResidentialBuilding } from './Building
 import { generateRandomName } from './utils.js';
 
 export class Town {
+    // Happiness adjustment constants
+    static RESOURCE_THRESHOLD = 0.5;
+    static RESOURCE_ADJUSTMENT = 0.5;
+    static BUILDING_PENALTY = 0.25;
+    static DENSITY_THRESHOLD = 10;
+    static DENSITY_PENALTY = 1.0;
+    static TIME_SCALE = 0.001;
+
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -61,24 +69,24 @@ export class Town {
         let happinessChange = 0;
         
         // Resource effect
-        if (resourceFactor < 0.5) {
-            happinessChange -= 0.5; // Decrease when resources are low
+        if (resourceFactor < Town.RESOURCE_THRESHOLD) {
+            happinessChange -= Town.RESOURCE_ADJUSTMENT; // Decrease when resources are low
         } else {
-            happinessChange += 0.5; // Increase when resources are high
+            happinessChange += Town.RESOURCE_ADJUSTMENT; // Increase when resources are high
         }
 
         // Building effect
         if (buildingFactor < 1) {
-            happinessChange -= 0.25; // Small penalty when no buildings
+            happinessChange -= Town.BUILDING_PENALTY; // Small penalty when no buildings
         }
         
         // Population density effect
-        if (populationDensity > 10) {
-            happinessChange -= 1.0; // Double penalty for overcrowding
+        if (populationDensity > Town.DENSITY_THRESHOLD) {
+            happinessChange -= Town.DENSITY_PENALTY; // Double penalty for overcrowding
         }
         
         // Apply time factor
-        happinessChange = happinessChange * deltaTime * 0.001;
+        happinessChange = happinessChange * deltaTime * Town.TIME_SCALE;
         
         // Update happiness with bounds
         this.happiness = Math.max(0, Math.min(100, this.happiness + happinessChange));
