@@ -14,3 +14,18 @@ export const COLORS = {
   SAND: 'yellow',
   MOUNTAIN: 'gray'
 };
+
+export const OCCUPATION_WAGES = {
+    'Doctor': 50,      // Highest wage due to skill/education
+    'Guard': 30,       // Security is important
+    'Builder': 35,     // Skilled labor
+    'Farmer': 25,      // Essential but common
+    'Merchant': 40,    // Business oriented
+    'Teacher': 35,     // Education focused
+    'Priest': 30,      // Community service
+    'Artist': 25,      // Creative work
+    'Child': 0         // No wage for children
+};
+
+// How often wages are paid (in milliseconds)
+export const WAGE_PAYMENT_INTERVAL = 10000; // 10 seconds

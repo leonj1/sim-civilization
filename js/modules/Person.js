@@ -14,6 +14,17 @@ const OCCUPATIONS = [
     'Artist'
 ];
 
+const OCCUPATION_WAGES = {
+    'Farmer': 10,
+    'Merchant': 15,
+    'Teacher': 12,
+    'Doctor': 20,
+    'Builder': 18,
+    'Guard': 14,
+    'Priest': 10,
+    'Artist': 15
+};
+
 export class Person {
     constructor(x, y, gender) {
         const pooledPerson = OBJECT_POOL.people.pop();
@@ -261,6 +272,66 @@ export class Person {
         return traits;
     }
 
+    findWorkplace() {
+        if (!this.town) return null;
+
+        switch (this.occupation) {
+            case 'Doctor':
+                return this.town.buildings.find(b => b.type === 'hospital');
+            case 'Guard':
+                return this.town.buildings.find(b => b.type === 'guardpost');
+            case 'Builder':
+                // Builders go to unfinished buildings or construction sites
+                return this.town.buildings.find(b => !b.isComplete);
+            case 'Farmer':
+                return this.town.buildings.find(b => b.type === 'farm');
+            case 'Merchant':
+                return this.town.buildings.find(b => b.type === 'market');
+            case 'Teacher':
+                return this.town.buildings.find(b => b.type === 'school');
+            case 'Priest':
+                return this.town.buildings.find(b => b.type === 'temple');
+            case 'Artist':
+                return this.town.buildings.find(b => b.type === 'gallery');
+            default:
+                return null;
+        }
+    }
+
+    updateWork(deltaTime) {
+        if (!this.town || this.age < 18) return;
+
+        this.workTimer -= deltaTime;
+        
+        if (this.workTimer <= 0) {
+            const workplace = this.findWorkplace();
+            
+            if (workplace) {
+                // Move to workplace
+                this.targetX = workplace.x;
+                this.targetY = workplace.y;
+                
+                // Only perform work action if close enough to workplace
+                if (this.distanceTo(workplace) < 30) {
+                    this.performOccupationAction();
+                }
+            } else {
+                // Special handling for occupations that don't need fixed workplaces
+                switch (this.occupation) {
+                    case 'Guard':
+                        this.handleGuardAction(); // Continue patrol
+                        break;
+                    case 'Builder':
+                        this.findNewConstructionProject(); // Look for construction needs
+                        break;
+                }
+            }
+            
+            // Set next work interval
+            this.workTimer = randomInt(3000, 8000);
+        }
+    }
+
     update(deltaTime) {
         // Skip update if off screen
         if (!this.isOnScreen(offset, zoom, gameCanvas)) return;
@@ -304,6 +375,9 @@ export class Person {
 
         // Update town membership
         this.updateTownMembership();
+
+        // Update work behavior
+        this.updateWork(deltaTime);
     }
 
     draw(ctx, offset, zoom) {
@@ -575,31 +649,122 @@ export class Person {
     performOccupationAction() {
         if (!this.town) return; // Must be in a town to work
 
+        // Base wage for this work action (smaller than hourly wage since this is per-action)
+        const baseActionWage = (OCCUPATION_WAGES[this.occupation] || 0) * 0.1;
+        let wageMultiplier = 1.0;
+        let workSuccess = false;
+
+        // Apply trait modifiers
+        if (this.traits.has(TRAITS.WISE)) wageMultiplier *= 1.2;
+        if (this.traits.has(TRAITS.FAST)) wageMultiplier *= 1.1;
+
         switch (this.occupation) {
-            case 'Builder':
-                this.handleBuilderAction();
+            case 'Farmer': {
+                const farm = this.findNearestFarm();
+                if (farm) {
+                    farm.productivity += this.traits.has(TRAITS.GREEN_THUMB) ? 0.2 : 0.1;
+                    workSuccess = true;
+                }
                 break;
-            case 'Farmer':
-                this.handleFarmerAction();
-                break;
-            case 'Guard':
+            }
+            case 'Guard': {
                 this.handleGuardAction();
+                // Guards always get paid for patrolling
+                workSuccess = true;
                 break;
-            case 'Doctor':
-                this.handleDoctorAction();
+            }
+            case 'Doctor': {
+                const nearbyPeople = this.town.population.filter(p => 
+                    p !== this && 
+                    this.distanceTo(p) < 30 &&
+                    p.age > p.maxAge * 0.8
+                );
+                if (nearbyPeople.length > 0) {
+                    const patient = sample(nearbyPeople);
+                    patient.maxAge += this.traits.has(TRAITS.WISE) ? 2 : 1;
+                    workSuccess = true;
+                    // Bonus for healing
+                    wageMultiplier *= 1.5;
+                }
                 break;
-            case 'Merchant':
-                this.handleMerchantAction();
+            }
+            case 'Merchant': {
+                const markets = this.town.buildings.filter(b => b.type === 'market');
+                if (markets.length > 0) {
+                    const market = sample(markets);
+                    this.targetX = market.x;
+                    this.targetY = market.y;
+                    workSuccess = true;
+                    // Merchant wage varies based on market activity
+                    wageMultiplier *= (market.customerCount || 1) * 0.1;
+                }
                 break;
-            case 'Teacher':
-                this.handleTeacherAction();
+            }
+            case 'Teacher': {
+                const students = this.town.population.filter(p => 
+                    p !== this && 
+                    p.age < 18 && 
+                    this.distanceTo(p) < 40
+                );
+                if (students.length > 0) {
+                    const student = sample(students);
+                    if (Math.random() < 0.1 && this.traits.has(TRAITS.WISE)) {
+                        const teachableTrait = sample(Object.values(TRAITS));
+                        student.traits.add(teachableTrait);
+                        // Bonus for successfully teaching a trait
+                        wageMultiplier *= 2;
+                    }
+                    workSuccess = true;
+                }
                 break;
-            case 'Priest':
-                this.handlePriestAction();
+            }
+            case 'Builder': {
+                const unfinishedBuildings = this.town.buildings.filter(b => !b.isComplete);
+                if (unfinishedBuildings.length > 0) {
+                    const building = unfinishedBuildings[0];
+                    building.progress += this.traits.has(TRAITS.STRONG) ? 0.2 : 0.1;
+                    workSuccess = true;
+                    // Bonus for completing a building
+                    if (building.progress >= 1) wageMultiplier *= 2;
+                }
                 break;
-            case 'Artist':
-                this.handleArtistAction();
+            }
+            case 'Priest': {
+                const nearbyPeople = this.town.population.filter(p => 
+                    p !== this && 
+                    this.distanceTo(p) < 40
+                );
+                if (nearbyPeople.length > 0) {
+                    // Increase town happiness
+                    this.town.happiness += 0.1;
+                    workSuccess = true;
+                    // Wage scales with number of people helped
+                    wageMultiplier *= Math.min(nearbyPeople.length * 0.1, 2);
+                }
                 break;
+            }
+            case 'Artist': {
+                // Artists create value over time
+                if (Math.random() < 0.3) { // 30% chance to create valuable art
+                    workSuccess = true;
+                    // Art value varies significantly
+                    wageMultiplier *= Math.random() * 3;
+                }
+                break;
+            }
+        }
+
+        // Pay wage if work was successful
+        if (workSuccess) {
+            const wage = baseActionWage * wageMultiplier;
+            this.money += wage;
+            this.lastPaycheck = wage;
+
+            // Small chance for bonus based on exceptional performance
+            if (Math.random() < 0.05) { // 5% chance
+                const bonus = wage * (this.traits.has(TRAITS.LUCKY) ? 2 : 1);
+                this.money += bonus;
+            }
         }
     }
 
@@ -648,10 +813,13 @@ export class Person {
     }
 
     handleDoctorAction() {
-        // Find and heal injured or sick people
+        const hospital = this.findWorkplace();
+        if (!hospital) return;
+
+        // Find patients near the hospital
         const nearbyPeople = this.town.population.filter(p => 
             p !== this && 
-            this.distanceTo(p) < 30 &&
+            p.distanceTo(hospital) < 40 &&
             p.age > p.maxAge * 0.8
         );
 
@@ -659,52 +827,64 @@ export class Person {
             const patient = sample(nearbyPeople);
             this.targetX = patient.x;
             this.targetY = patient.y;
-            // Extend their lifespan slightly
             patient.maxAge += this.traits.has(TRAITS.WISE) ? 2 : 1;
+        } else {
+            // Return to hospital if no patients
+            this.targetX = hospital.x;
+            this.targetY = hospital.y;
         }
     }
 
     handleMerchantAction() {
-        // Move between market areas
-        const markets = this.town.buildings.filter(b => b.type === 'market');
-        if (markets.length > 0) {
-            const market = sample(markets);
-            this.targetX = market.x;
-            this.targetY = market.y;
+        const market = this.findWorkplace();
+        if (!market) return;
+
+        // Stay at market during work hours
+        this.targetX = market.x;
+        this.targetY = market.y;
+
+        // Update market activity
+        if (this.distanceTo(market) < 10) {
+            market.customerCount = (market.customerCount || 0) + 1;
         }
     }
 
     handleTeacherAction() {
-        // Find young people to teach
+        const school = this.findWorkplace();
+        if (!school) return;
+
+        // Find students near the school
         const students = this.town.population.filter(p => 
             p !== this && 
             p.age < 18 && 
-            this.distanceTo(p) < 40
+            p.distanceTo(school) < 40
         );
 
         if (students.length > 0) {
             const student = sample(students);
             this.targetX = student.x;
             this.targetY = student.y;
-            // Teaching might occasionally grant a trait
             if (Math.random() < 0.1 && this.traits.has(TRAITS.WISE)) {
                 const teachableTrait = sample(Object.values(TRAITS));
                 student.traits.add(teachableTrait);
             }
+        } else {
+            // Return to school if no students
+            this.targetX = school.x;
+            this.targetY = school.y;
         }
     }
 
     handlePriestAction() {
-        // Move between temple and people
-        const temples = this.town.buildings.filter(b => b.type === 'temple');
-        if (temples.length > 0) {
-            const temple = sample(temples);
+        const temple = this.findWorkplace();
+        if (!temple) return;
+
+        // Alternate between temple and blessing nearby people
+        if (Math.random() < 0.3 && this.distanceTo(temple) < 30) {
+            this.blessNearbyPeople();
+        } else {
             this.targetX = temple.x;
             this.targetY = temple.y;
-            // Occasionally bless nearby people
-            if (Math.random() < 0.2) {
-                this.blessNearbyPeople();
-            }
         }
     }
 
