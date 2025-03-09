@@ -38,13 +38,15 @@ export class PeopleListRenderer {
             return `${this.t.building} (${Math.floor(person.bridgeProgress * 100)}% complete)`;
         }
         if (person.currentRoadTarget) return this.t.paving;
-        if (person.following) return `${this.t.following} ${person.following.name}`;
+        if (person.following) return `${this.t.following} ${this.escapeHtml(person.following.name)}`;
         if (person.occupation === OCCUPATIONS.CASHIER) return this.t.working;
         if (person.occupation === OCCUPATIONS.SUPPLIER && person.targetX !== person.x) return this.t.delivering;
         if (person.occupation === OCCUPATIONS.CHILD && person.age < AGE_THRESHOLDS.CHILD) return this.t.playing;
         if (person.moveTimer > 0) return this.t.walking;
         if (person.isPlayingRPS) {
-            return `Chose ${person.rpsChoice}${person.rpsResult ? `. ${person.rpsResult}!` : '...'}`;
+            const escapedChoice = this.escapeHtml(person.rpsChoice);
+            const escapedResult = person.rpsResult ? this.escapeHtml(person.rpsResult) : null;
+            return `Chose ${escapedChoice}${escapedResult ? `. ${escapedResult}!` : '...'}`;
         }
         return this.t.idle;
     }
@@ -60,20 +62,23 @@ export class PeopleListRenderer {
         }
 
         const titleType = person.gender === 'female' ? this.t.mayoress : this.t.mayor;
-        return ` ${titleType} ${person.town.name}`;
+        return ` ${titleType} ${this.escapeHtml(person.town.name)}`;
     }
 
     renderPersonEntry(person) {
-        const townInfo = person.town ? person.town.name : this.t.noTown;
-        const motherInfo = person.motherPartner ? person.motherPartner.name : this.t.unknown;
-        const fatherInfo = person.fatherPartner ? person.fatherPartner.name : this.t.unknown;
+        // Escape all user-generated content to prevent XSS attacks
+        const townInfo = person.town ? this.escapeHtml(person.town.name) : this.t.noTown;
+        const motherInfo = person.motherPartner ? this.escapeHtml(person.motherPartner.name) : this.t.unknown;
+        const fatherInfo = person.fatherPartner ? this.escapeHtml(person.fatherPartner.name) : this.t.unknown;
         const mayorTitle = this.getMayorTitle(person);
-        const occupationInfo = person.occupation || this.t.unemployed;
+        const occupationInfo = person.occupation ? this.escapeHtml(person.occupation) : this.t.unemployed;
         const activity = this.getPersonActivity(person);
+        const escapedName = this.escapeHtml(person.name);
+        const escapedTraits = person.traits ? person.traits.map(trait => this.escapeHtml(trait)) : [];
 
         return `
             <div class="personEntry ${person.isMayor ? 'mayor' : ''} ${person.isPlayingTag ? 'it' : ''} ${person.isPlayingRPS ? 'playing-rps' : ''}">
-                ${person.name} - ${this.t.age}: ${Math.floor(person.age)}
+                ${escapedName} - ${this.t.age}: ${Math.floor(person.age)}
                 ${mayorTitle}
                 <br><span class="person-activity">${this.t.currently}: ${activity}</span>
                 <br><span class="person-detail">${this.t.works}: ${occupationInfo}</span>
@@ -82,7 +87,7 @@ export class PeopleListRenderer {
                 <br><span class="person-detail">${this.t.father}: ${fatherInfo}</span>
                 <br><span class="person-detail">${this.t.citizen}: ${townInfo}</span>
                 ${person.currentThought ? `<div class="thoughts">"${this.escapeHtml(person.currentThought)}"</div>` : ''}
-                ${person.traits && person.traits.length ? `<div class="traits">Traits: ${person.traits.join(', ')}</div>` : ''}
+                ${escapedTraits.length ? `<div class="traits">Traits: ${escapedTraits.join(', ')}</div>` : ''}
                 ${person.isPlayingTag ? `<br><span class="tag-status ${person.isIt ? 'tag-it' : 'tag-playing'}">
                     ${person.isIt ? this.t.it : this.t.playingTag}</span>` : ''}
                 ${person.currentBridgeTarget instanceof ResidentialBuilding ? 

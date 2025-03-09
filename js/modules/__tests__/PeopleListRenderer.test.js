@@ -98,19 +98,37 @@ describe('PeopleListRenderer', () => {
         });
     });
     
-    test('renderPersonEntry escapes HTML in thoughts', () => {
+    test('renderPersonEntry escapes all user-generated content', () => {
         const person = {
-            name: 'John Doe',
+            name: '<script>alert("XSS in name")</script>',
             age: 25,
             generation: 1,
-            occupation: 'Farmer',
-            town: { name: 'Springfield' },
-            currentThought: '<script>alert("XSS")</script>'
+            occupation: '<script>alert("XSS in occupation")</script>',
+            town: { name: '<script>alert("XSS in town")</script>' },
+            motherPartner: { name: '<script>alert("XSS in mother")</script>' },
+            fatherPartner: { name: '<script>alert("XSS in father")</script>' },
+            currentThought: '<script>alert("XSS in thought")</script>',
+            traits: ['<script>alert("XSS in trait")</script>'],
+            following: { name: '<script>alert("XSS in following")</script>' },
+            isPlayingRPS: true,
+            rpsChoice: '<script>alert("XSS in choice")</script>',
+            rpsResult: '<script>alert("XSS in result")</script>'
         };
 
         const entry = renderer.renderPersonEntry(person);
-        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;');
-        expect(entry).not.toContain('<script>alert("XSS")</script>');
+        
+        // Check that none of the raw script tags are present
+        expect(entry).not.toContain('<script>');
+        expect(entry).not.toContain('</script>');
+        
+        // Check that escaped versions are present for each field
+        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS in name&quot;)&lt;/script&gt;');
+        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS in occupation&quot;)&lt;/script&gt;');
+        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS in town&quot;)&lt;/script&gt;');
+        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS in mother&quot;)&lt;/script&gt;');
+        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS in father&quot;)&lt;/script&gt;');
+        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS in thought&quot;)&lt;/script&gt;');
+        expect(entry).toContain('&lt;script&gt;alert(&quot;XSS in trait&quot;)&lt;/script&gt;');
     });
 
     describe('renderPeopleList', () => {
