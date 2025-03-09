@@ -4,7 +4,12 @@ import { drawRoundedRect } from './utils.js';
 export const STORE_COLORS = {
     WALL: '#98FB98',
     ROOF: '#32CD32',
-    DOOR: '#228B22'
+    DOOR: '#228B22',
+    // Add new colors for food buildings
+    GROCERY_WALL: '#F0E68C',
+    SUPERMARKET_WALL: '#87CEEB',
+    DINER_WALL: '#FFB6C1',
+    RESTAURANT_WALL: '#DDA0DD'
 };
 
 // Store constants
@@ -14,6 +19,40 @@ const STORE_CONFIG = {
     RESTOCK_AMOUNT: 5,
     RESTOCK_INTERVAL: 5000,  // 5 seconds
     LOW_STOCK_THRESHOLD: 20
+};
+
+// Add new configuration constants
+const FOOD_BUILDING_CONFIG = {
+    GROCERY_STORE: {
+        MAX_INVENTORY: 75,
+        RESTOCK_AMOUNT: 5,
+        RESTOCK_INTERVAL: 4000,  // 4 seconds
+        LOW_STOCK_THRESHOLD: 15,
+        FOOD_PRODUCTION: 0.15    // Food production rate per update
+    },
+    SUPERMARKET: {
+        MAX_INVENTORY: 150,
+        RESTOCK_AMOUNT: 10,
+        RESTOCK_INTERVAL: 3000,  // 3 seconds
+        LOW_STOCK_THRESHOLD: 30,
+        FOOD_PRODUCTION: 0.25    // Higher food production rate
+    },
+    DINER: {
+        MAX_INVENTORY: 50,
+        RESTOCK_AMOUNT: 3,
+        RESTOCK_INTERVAL: 2000,  // 2 seconds
+        LOW_STOCK_THRESHOLD: 10,
+        FOOD_PRODUCTION: 0.1,    // Lower but faster food production
+        MAX_SEATS: 20
+    },
+    RESTAURANT: {
+        MAX_INVENTORY: 60,
+        RESTOCK_AMOUNT: 4,
+        RESTOCK_INTERVAL: 2500,  // 2.5 seconds
+        LOW_STOCK_THRESHOLD: 12,
+        FOOD_PRODUCTION: 0.12,   // Moderate food production
+        MAX_SEATS: 30
+    }
 };
 
 // Building configuration constants
@@ -642,6 +681,183 @@ export class Bank extends Building {
         // Draw loan count
         if (this.loans.size > 0) {
             ctx.fillText(`Loans: ${this.loans.size}`, screenX, screenY + this.calculateScaledSize(25, zoom));
+        }
+    }
+}
+
+export class GroceryStore extends Store {
+    constructor(x, y) {
+        super(x, y);
+        this.type = 'grocery';
+        this.inventory = FOOD_BUILDING_CONFIG.GROCERY_STORE.MAX_INVENTORY;
+        this.restockTimer = FOOD_BUILDING_CONFIG.GROCERY_STORE.RESTOCK_INTERVAL;
+        this.config = FOOD_BUILDING_CONFIG.GROCERY_STORE;
+    }
+
+    draw(ctx, offset, zoom) {
+        const { x: screenX, y: screenY } = this.calculateScreenPosition(offset, zoom);
+        
+        // Draw main building
+        ctx.fillStyle = STORE_COLORS.GROCERY_WALL;
+        const width = this.calculateScaledSize(45, zoom);
+        const height = this.calculateScaledSize(35, zoom);
+        ctx.fillRect(screenX - width/2, screenY - height/2, width, height);
+        
+        // Draw roof and door similar to parent Store class
+        this.drawRoofAndDoor(ctx, screenX, screenY, zoom);
+        
+        // Draw "GROCERY" text
+        ctx.fillStyle = '#333';
+        ctx.font = `${this.calculateScaledSize(8, zoom)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('GROCERY', screenX, screenY);
+        
+        // Draw inventory bar
+        this.drawInventoryBar(ctx, screenX, screenY, zoom);
+    }
+
+    update(deltaTime) {
+        super.update(deltaTime);
+        if (this.town) {
+            this.town.resources.food += this.config.FOOD_PRODUCTION * deltaTime;
+        }
+    }
+}
+
+export class Supermarket extends Store {
+    constructor(x, y) {
+        super(x, y);
+        this.type = 'supermarket';
+        this.inventory = FOOD_BUILDING_CONFIG.SUPERMARKET.MAX_INVENTORY;
+        this.restockTimer = FOOD_BUILDING_CONFIG.SUPERMARKET.RESTOCK_INTERVAL;
+        this.config = FOOD_BUILDING_CONFIG.SUPERMARKET;
+        this.departments = ['produce', 'meat', 'dairy', 'bakery'];
+    }
+
+    draw(ctx, offset, zoom) {
+        const { x: screenX, y: screenY } = this.calculateScreenPosition(offset, zoom);
+        
+        // Draw larger building
+        ctx.fillStyle = STORE_COLORS.SUPERMARKET_WALL;
+        const width = this.calculateScaledSize(60, zoom);
+        const height = this.calculateScaledSize(45, zoom);
+        ctx.fillRect(screenX - width/2, screenY - height/2, width, height);
+        
+        this.drawRoofAndDoor(ctx, screenX, screenY, zoom);
+        
+        // Draw "SUPERMARKET" text
+        ctx.fillStyle = '#333';
+        ctx.font = `${this.calculateScaledSize(8, zoom)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('SUPERMARKET', screenX, screenY);
+        
+        this.drawInventoryBar(ctx, screenX, screenY, zoom);
+    }
+
+    update(deltaTime) {
+        super.update(deltaTime);
+        if (this.town) {
+            this.town.resources.food += this.config.FOOD_PRODUCTION * deltaTime;
+        }
+    }
+}
+
+export class Diner extends Store {
+    constructor(x, y) {
+        super(x, y);
+        this.type = 'diner';
+        this.inventory = FOOD_BUILDING_CONFIG.DINER.MAX_INVENTORY;
+        this.restockTimer = FOOD_BUILDING_CONFIG.DINER.RESTOCK_INTERVAL;
+        this.config = FOOD_BUILDING_CONFIG.DINER;
+        this.currentCustomers = 0;
+        this.tables = Array(Math.floor(this.config.MAX_SEATS / 4)).fill(false); // 4 seats per table
+    }
+
+    draw(ctx, offset, zoom) {
+        const { x: screenX, y: screenY } = this.calculateScreenPosition(offset, zoom);
+        
+        // Draw retro diner style building
+        ctx.fillStyle = STORE_COLORS.DINER_WALL;
+        const width = this.calculateScaledSize(40, zoom);
+        const height = this.calculateScaledSize(30, zoom);
+        
+        // Draw rounded corners for retro look
+        drawRoundedRect(ctx, screenX - width/2, screenY - height/2, width, height, 5 * zoom);
+        
+        // Draw "DINER" text
+        ctx.fillStyle = '#333';
+        ctx.font = `${this.calculateScaledSize(8, zoom)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('DINER', screenX, screenY);
+        
+        this.drawInventoryBar(ctx, screenX, screenY, zoom);
+    }
+
+    update(deltaTime) {
+        super.update(deltaTime);
+        if (this.town) {
+            this.town.resources.food += this.config.FOOD_PRODUCTION * deltaTime;
+        }
+    }
+}
+
+export class Restaurant extends Store {
+    constructor(x, y) {
+        super(x, y);
+        this.type = 'restaurant';
+        this.inventory = FOOD_BUILDING_CONFIG.RESTAURANT.MAX_INVENTORY;
+        this.restockTimer = FOOD_BUILDING_CONFIG.RESTAURANT.RESTOCK_INTERVAL;
+        this.config = FOOD_BUILDING_CONFIG.RESTAURANT;
+        this.currentCustomers = 0;
+        this.tables = Array(Math.floor(this.config.MAX_SEATS / 2)).fill(false); // 2 seats per table
+        this.rating = 5; // 1-5 star rating
+    }
+
+    draw(ctx, offset, zoom) {
+        const { x: screenX, y: screenY } = this.calculateScreenPosition(offset, zoom);
+        
+        // Draw upscale restaurant building
+        ctx.fillStyle = STORE_COLORS.RESTAURANT_WALL;
+        const width = this.calculateScaledSize(50, zoom);
+        const height = this.calculateScaledSize(40, zoom);
+        ctx.fillRect(screenX - width/2, screenY - height/2, width, height);
+        
+        // Draw fancy entrance
+        ctx.fillStyle = STORE_COLORS.DOOR;
+        const entranceWidth = this.calculateScaledSize(15, zoom);
+        const entranceHeight = this.calculateScaledSize(20, zoom);
+        drawRoundedRect(ctx, screenX - entranceWidth/2, screenY - entranceHeight/2, entranceWidth, entranceHeight, 3 * zoom);
+        
+        // Draw "RESTAURANT" text
+        ctx.fillStyle = '#333';
+        ctx.font = `${this.calculateScaledSize(8, zoom)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('RESTAURANT', screenX, screenY);
+        
+        // Draw star rating
+        this.drawStarRating(ctx, screenX, screenY, zoom);
+        
+        this.drawInventoryBar(ctx, screenX, screenY, zoom);
+    }
+
+    drawStarRating(ctx, screenX, screenY, zoom) {
+        const starSize = this.calculateScaledSize(5, zoom);
+        const startX = screenX - (starSize * 5) / 2;
+        
+        ctx.fillStyle = '#FFD700'; // Gold color for stars
+        for (let i = 0; i < this.rating; i++) {
+            ctx.fillText('★', startX + (i * starSize), screenY + this.calculateScaledSize(15, zoom));
+        }
+    }
+
+    update(deltaTime) {
+        super.update(deltaTime);
+        if (this.town) {
+            this.town.resources.food += this.config.FOOD_PRODUCTION * deltaTime;
+            // Occasionally update rating based on town happiness
+            if (Math.random() < 0.01) {
+                this.rating = Math.max(1, Math.min(5, Math.floor(this.town.happiness / 20)));
+            }
         }
     }
 }
