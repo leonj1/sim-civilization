@@ -2,6 +2,7 @@ import { OBJECT_POOL, currentGenerationNumber, offset, zoom, terrain, gameCanvas
 import { generateULID, generateRandomName, randomInt, sample, debugLog } from './utils.js';
 import { THOUGHTS, getThought } from './translations.js';
 import { TRAITS, COLORS } from './constants.js';
+import { Store } from './Buildings.js';
 
 const OCCUPATIONS = [
     'Farmer',
@@ -108,6 +109,11 @@ export class Person {
         
         // Generate initial thought after all state is set
         this.currentThought = this.generateThought();
+        
+        // Food-related state
+        this.hunger = 0;
+        this.inventory = new Map();
+        this.lastMealTime = Date.now();
     }
 
     /**
@@ -378,6 +384,12 @@ export class Person {
 
         // Update work behavior
         this.updateWork(deltaTime);
+
+        // Update hunger
+        this.hunger += deltaTime * 0.01; // Increase hunger over time
+        if (this.hunger >= 70) {
+            this.findFood();
+        }
     }
 
     draw(ctx, offset, zoom) {
@@ -1125,5 +1137,108 @@ export class Person {
                 }
             }
         }
+    }
+
+    findFood() {
+        // If not hungry enough, don't seek food
+        if (this.hunger < 70) return false;
+
+        // Check inventory first
+        if (this.inventory.size > 0) {
+            for (const [food, quantity] of this.inventory) {
+                if (quantity > 0) {
+                    // Consume food from inventory
+                    this.inventory.set(food, quantity - 1);
+                    if (this.inventory.get(food) === 0) {
+                        this.inventory.delete(food);
+                    }
+                    
+                    this.hunger = Math.max(0, this.hunger - 30);
+                    this.happiness += 5;
+                    this.currentThought = food === 'bread' ? 'Simple but filling' : 'HAPPY_FED';
+                    return true;
+                }
+            }
+        }
+
+        // If we're a child, try to get food from parent
+        if (this.age < 13 && this.parent) {
+            const parentDistance = Math.hypot(this.x - this.parent.x, this.y - this.parent.y);
+            
+            // Move towards parent
+            this.targetX = this.parent.x;
+            this.targetY = this.parent.y;
+            
+            if (parentDistance < 20) {
+                // Request food from parent
+                if (this.parent.inventory.size > 0 || this.parent.money >= 10) {
+                    this.hunger = Math.max(0, this.hunger - 40);
+                    this.happiness += 10;
+                    this.currentThought = 'HAPPY_FED';
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Try to buy food if we have money
+        if (this.money >= 10) {
+            const store = this.findNearestStore();
+            if (store) {
+                // Move towards store
+                this.targetX = store.x;
+                this.targetY = store.y;
+                
+                // If close enough to store, purchase food
+                if (Math.hypot(this.x - store.x, this.y - store.y) < 20) {
+                    this.money -= 10;
+                    this.hunger = Math.max(0, this.hunger - 40);
+                    this.happiness += 10;
+                    this.currentThought = 'HAPPY_FED';
+                    return true;
+                }
+            }
+        }
+
+        // If no food and no money, seek work
+        if (!this.occupation || this.occupation === 'Unemployed') {
+            this.occupation = this.assignOccupation();
+            this.currentThought = 'NEED_WORK';
+            return false;
+        }
+
+        // If employed but hungry, work immediately
+        if (this.occupation) {
+            const workplace = this.findWorkplace();
+            if (workplace) {
+                this.targetX = workplace.x;
+                this.targetY = workplace.y;
+                this.currentThought = 'WORKING';
+                // Work will generate money in updateWork method
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    findNearestStore() {
+        if (!this.town || !this.town.buildings) return null;
+        
+        const stores = this.town.buildings.filter(building => building instanceof Store);
+        if (stores.length === 0) return null;
+
+        let nearestStore = null;
+        let shortestDistance = Infinity;
+
+        for (const store of stores) {
+            const distance = Math.hypot(this.x - store.x, this.y - store.y);
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                nearestStore = store;
+            }
+        }
+
+        return nearestStore;
     }
 }
