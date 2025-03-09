@@ -95,7 +95,9 @@ export function init() {
     // Add interest rate control
     document.getElementById('interestControl').addEventListener('input', e => {
         const rate = parseFloat(e.target.value) / 100;  // Convert percentage to decimal
-        Bank.federalRate = rate;
+        if (!isNaN(rate) && rate >= 0 && rate <= 1) {
+            Bank.federalRate = rate;
+        }
         document.getElementById('interestLevel').textContent = e.target.value;
     });
     
@@ -340,4 +342,4 @@ export {
     init,
     isPaused,
     Bank
-}; 
+};
