@@ -13,7 +13,7 @@ jest.mock('../translations.js');
 jest.mock('../constants.js');
 
 // Import the Person class and gameState
-import { Person } from '../Person.js';
+import { Person } from '../../modules/person/Person.js';
 import { OBJECT_POOL } from '../gameState.js';
 import { TRAITS } from '../constants.js';
 import { THOUGHTS, getThought } from '../translations.js';

@@ -1,3 +1,4 @@
+import { Person } from './person/Person.js';
 import { OBJECT_POOL } from './gameState.js';
 import { drawRoundedRect } from './utils.js';
 
