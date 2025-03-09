@@ -205,6 +205,10 @@ export class ObjectPool {
 
 // Generation name utility
 export function getGenerationName(generationNumber) {
+    if (typeof generationNumber !== 'number' || isNaN(generationNumber)) {
+        throw new Error('Generation number must be a valid number');
+    }
+
     const generationNames = [
         'Founders',
         'Pioneers',
