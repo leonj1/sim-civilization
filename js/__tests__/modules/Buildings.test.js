@@ -225,4 +225,141 @@ describe('Building Classes', () => {
             expect(mockCtx.fillStyleHistory.some(color => /#[0-9A-F]{6}/i.test(color))).toBe(true);
         });
     });
-}); 
+
+    describe('Bank', () => {
+        const bankTestCases = [
+            {
+                name: 'initializes with correct default values',
+                x: 50,
+                y: 50,
+                expectedFunds: 10000,
+                expectedType: 'bank'
+            },
+            {
+                name: 'handles deposits correctly',
+                x: 50,
+                y: 50,
+                depositAmount: 500,
+                expectedFunds: 10500,
+                expectedResult: true
+            },
+            {
+                name: 'rejects invalid deposits',
+                x: 50,
+                y: 50,
+                depositAmount: -100,
+                expectedFunds: 10000,
+                expectedResult: false
+            },
+            {
+                name: 'handles withdrawals correctly',
+                x: 50,
+                y: 50,
+                withdrawAmount: 1000,
+                expectedFunds: 9000,
+                expectedResult: true
+            },
+            {
+                name: 'rejects excessive withdrawals',
+                x: 50,
+                y: 50,
+                withdrawAmount: 15000,
+                expectedFunds: 10000,
+                expectedResult: false
+            }
+        ];
+
+        test.each(bankTestCases)('$name', ({
+            x, y, expectedFunds, expectedType,
+            depositAmount, withdrawAmount, expectedResult
+        }) => {
+            const bank = new Bank(x, y);
+            let result;
+            
+            if (depositAmount !== undefined) {
+                result = bank.deposit(depositAmount);
+                expect(result).toBe(expectedResult);
+            } else if (withdrawAmount !== undefined) {
+                result = bank.withdraw(withdrawAmount);
+                expect(result).toBe(expectedResult);
+            }
+            
+            expect(bank.funds).toBe(expectedFunds);
+            if (expectedType) expect(bank.type).toBe(expectedType);
+        });
+
+        test('handles loans correctly', () => {
+            const bank = new Bank(100, 100);
+            const customerId = 'customer1';
+            const loanAmount = 2000;
+            
+            // Issue loan
+            const loanResult = bank.issueLoan(customerId, loanAmount);
+            expect(loanResult).toBe(true);
+            expect(bank.funds).toBe(8000);
+            expect(bank.loans.get(customerId)).toBe(loanAmount);
+            
+            // Try to issue second loan to same customer
+            const secondLoanResult = bank.issueLoan(customerId, 1000);
+            expect(secondLoanResult).toBe(false);
+            
+            // Repay part of loan
+            const partialRepayment = 500;
+            const repayResult = bank.repayLoan(customerId, partialRepayment);
+            expect(repayResult).toBe(true);
+            expect(bank.funds).toBe(8500);
+            expect(bank.loans.get(customerId)).toBe(1500);
+            
+            // Repay rest of loan
+            const finalRepayment = 1500;
+            const finalRepayResult = bank.repayLoan(customerId, finalRepayment);
+            expect(finalRepayResult).toBe(true);
+            expect(bank.funds).toBe(10000);
+            expect(bank.loans.has(customerId)).toBe(false);
+        });
+
+        test('applies interest to loans', () => {
+            const bank = new Bank(100, 100);
+            const customerId = 'customer1';
+            const loanAmount = 1000;
+            
+            // Issue loan
+            bank.issueLoan(customerId, loanAmount);
+            
+            // Apply interest
+            bank.applyInterest();
+            
+            // Verify interest was applied (5% interest rate)
+            expect(bank.loans.get(customerId)).toBe(1050);
+        });
+
+        test('updates interest timer', () => {
+            const bank = new Bank(100, 100);
+            const customerId = 'customer1';
+            bank.issueLoan(customerId, 1000);
+            
+            const deltaTime = 11000; // More than interest interval
+            bank.update(deltaTime);
+            
+            // Verify interest was applied
+            expect(bank.loans.get(customerId)).toBeGreaterThan(1000);
+        });
+
+        test('draws bank with correct style', () => {
+            const bank = new Bank(100, 100);
+            mockCtx.fillStyleHistory = [];
+            bank.draw(mockCtx, { x: 0, y: 0 }, 1);
+            
+            expect(mockCtx.fillRect).toHaveBeenCalled();
+            expect(mockCtx.fillText).toHaveBeenCalledWith('BANK', expect.any(Number), expect.any(Number));
+            
+            // Verify funds are displayed
+            const fundsText = `$${bank.funds.toLocaleString()}`;
+            expect(mockCtx.fillText).toHaveBeenCalledWith(fundsText, expect.any(Number), expect.any(Number));
+            
+            // Verify colors used
+            expect(mockCtx.fillStyleHistory).toContain('#E6E6FA'); // Main building color
+            expect(mockCtx.fillStyleHistory).toContain('#FFFFFF'); // Column color
+        });
+    });
+});
