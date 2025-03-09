@@ -25,7 +25,7 @@ jest.mock('../translations.js');
 jest.mock('../constants.js');
 
 // Import the Person class and related modules
-import { Person } from '../../modules/person/Person.js';
+import { Person } from '../person/Person.js';
 import { OBJECT_POOL } from '../gameState.js';
 import { TRAITS } from '../constants.js';
 
