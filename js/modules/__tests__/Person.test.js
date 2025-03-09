@@ -1,11 +1,19 @@
 // Import the mocks first
 jest.mock('../gameState.js');
-jest.mock('../utils.js');
+jest.mock('../utils.js', () => ({
+  generateULID: jest.fn().mockReturnValue('test-ulid-123'),
+  generateRandomName: jest.fn().mockImplementation((gender) => 
+    gender === 'male' || gender === 'masculine' ? 'TestMaleName' : 'TestFemaleName'
+  ),
+  randomInt: jest.fn().mockReturnValue(5),
+  sample: jest.fn().mockImplementation(arr => arr[0]),
+  debugLog: jest.fn()
+}));
 jest.mock('../translations.js');
 jest.mock('../constants.js');
 
 // Import the Person class and gameState
-import { Person } from '../Person.js';
+import { Person } from '../../modules/person/Person.js';
 import { OBJECT_POOL } from '../gameState.js';
 import { TRAITS } from '../constants.js';
 import { THOUGHTS, getThought } from '../translations.js';

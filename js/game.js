@@ -1,6 +1,6 @@
 // Import modules
-import { Person } from './modules/Person.js';
-import { Building, Store, PublicBuilding, ResidentialBuilding, Bank } from './modules/Buildings.js';
+import { Person } from './modules/person/Person.js';
+import { Building, Store, PublicBuilding, ResidentialBuilding, Bank } from './modules/buildings/index.js';
 import { Town } from './modules/Town.js';
 import { MarkovChain } from './modules/MarkovChain.js';
 import { TRANSLATIONS, THOUGHTS } from './modules/translations.js';

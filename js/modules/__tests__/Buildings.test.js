@@ -1,4 +1,10 @@
-import { Building, Store, PublicBuilding, ResidentialBuilding, STORE_COLORS } from '../Buildings.js';
+import { 
+    Building, 
+    Store, 
+    PublicBuilding, 
+    ResidentialBuilding, 
+    STORE_COLORS 
+} from '../buildings/index.js';
 import { drawRoundedRect } from '../utils.js';
 
 // Mock canvas context

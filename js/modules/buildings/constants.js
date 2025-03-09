@@ -1,0 +1,64 @@
+export const STORE_COLORS = {
+    WALL: '#98FB98',
+    ROOF: '#32CD32',
+    DOOR: '#228B22',
+    GROCERY_WALL: '#F0E68C',
+    SUPERMARKET_WALL: '#87CEEB',
+    DINER_WALL: '#FFB6C1',
+    RESTAURANT_WALL: '#DDA0DD'
+};
+
+export const STORE_CONFIG = {
+    MAX_INVENTORY: 100,
+    MIN_INVENTORY: 0,
+    RESTOCK_AMOUNT: 5,
+    RESTOCK_INTERVAL: 5000,  // 5 seconds
+    LOW_STOCK_THRESHOLD: 20
+};
+
+export const FOOD_BUILDING_CONFIG = {
+    GROCERY_STORE: {
+        MAX_INVENTORY: 75,
+        RESTOCK_AMOUNT: 5,
+        RESTOCK_INTERVAL: 4000,
+        LOW_STOCK_THRESHOLD: 15,
+        FOOD_PRODUCTION: 0.15
+    },
+    SUPERMARKET: {
+        MAX_INVENTORY: 150,
+        RESTOCK_AMOUNT: 10,
+        RESTOCK_INTERVAL: 3000,
+        LOW_STOCK_THRESHOLD: 30,
+        FOOD_PRODUCTION: 0.25
+    },
+    DINER: {
+        MAX_INVENTORY: 50,
+        RESTOCK_AMOUNT: 3,
+        RESTOCK_INTERVAL: 2000,
+        LOW_STOCK_THRESHOLD: 10,
+        FOOD_PRODUCTION: 0.1,
+        MAX_SEATS: 20
+    },
+    RESTAURANT: {
+        MAX_INVENTORY: 60,
+        RESTOCK_AMOUNT: 4,
+        RESTOCK_INTERVAL: 2500,
+        LOW_STOCK_THRESHOLD: 12,
+        FOOD_PRODUCTION: 0.12,
+        MAX_SEATS: 30
+    }
+};
+
+export const RESIDENTIAL_CONFIG = {
+    HOTEL: {
+        MIN_CAPACITY: 50,
+        MAX_CAPACITY: 75,
+        STEP_SIZE: 5
+    },
+    CONDO: {
+        MIN_CAPACITY: 20,
+        MAX_CAPACITY: 40,
+        STEP_SIZE: 5
+    },
+    DEFAULT_CAPACITY: 20
+};

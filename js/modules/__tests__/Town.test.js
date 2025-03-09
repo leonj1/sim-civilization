@@ -1,5 +1,5 @@
 import { Town } from '../Town.js';
-import { Building, Store, PublicBuilding, ResidentialBuilding } from '../Buildings.js';
+import { Building, Store, PublicBuilding, ResidentialBuilding } from '../buildings/index.js';
 import { jest } from '@jest/globals';
 
 // Mock the gameState module
@@ -305,4 +305,4 @@ describe('Town', () => {
             }
         });
     });
-}); 
+});
