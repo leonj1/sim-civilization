@@ -1,3 +1,5 @@
+import { BUILDING_COLORS } from './colors.js';
+
 export class Building {
     constructor(x, y) {
         this.x = x;
@@ -22,7 +24,7 @@ export class Building {
         const { x: screenX, y: screenY } = this.calculateScreenPosition(offset, zoom);
         
         // Draw main building
-        ctx.fillStyle = '#8B4513';
+        ctx.fillStyle = BUILDING_COLORS.WALL;
         const buildingSize = this.calculateScaledSize(30, zoom);
         ctx.fillRect(
             screenX - buildingSize/2,
@@ -32,7 +34,7 @@ export class Building {
         );
         
         // Draw door
-        ctx.fillStyle = '#4A2811';
+        ctx.fillStyle = BUILDING_COLORS.DOOR;
         const doorSize = this.calculateScaledSize(10, zoom);
         ctx.fillRect(
             screenX - doorSize/2,
@@ -49,7 +51,7 @@ export class Building {
         ctx.lineTo(screenX + roofWidth/2, screenY - roofHeight);
         ctx.lineTo(screenX, screenY - roofHeight * 2);
         ctx.closePath();
-        ctx.fillStyle = '#654321';
+        ctx.fillStyle = BUILDING_COLORS.ROOF;
         ctx.fill();
 
         if (this.familyName) {
@@ -59,34 +61,36 @@ export class Building {
 
     drawFamilyName(ctx, screenX, screenY, zoom) {
         const fontSize = this.calculateScaledSize(14, zoom);
-        ctx.fillStyle = 'black';
         ctx.font = `bold ${fontSize}px Mojangles`;
         ctx.textAlign = 'center';
-        ctx.fillText(this.familyName, screenX, screenY - this.calculateScaledSize(35, zoom));
         
         const nameWidth = ctx.measureText(this.familyName).width;
         const padding = this.calculateScaledSize(5, zoom);
         const boxHeight = this.calculateScaledSize(18, zoom);
+        const textY = screenY - this.calculateScaledSize(35, zoom);
+        const boxY = screenY - this.calculateScaledSize(48, zoom);
         
-        ctx.strokeStyle = '#654321';
+        // Draw background box with border
+        ctx.strokeStyle = BUILDING_COLORS.BORDER;
         ctx.lineWidth = this.calculateScaledSize(2, zoom);
         ctx.strokeRect(
             screenX - nameWidth/2 - padding,
-            screenY - this.calculateScaledSize(48, zoom),
+            boxY,
             nameWidth + padding * 2,
             boxHeight
         );
         
-        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.fillStyle = BUILDING_COLORS.TEXT_BACKGROUND;
         ctx.fillRect(
             screenX - nameWidth/2 - padding,
-            screenY - this.calculateScaledSize(48, zoom),
+            boxY,
             nameWidth + padding * 2,
             boxHeight
         );
         
-        ctx.fillStyle = '#333';
-        ctx.fillText(this.familyName, screenX, screenY - this.calculateScaledSize(35, zoom));
+        // Draw text
+        ctx.fillStyle = BUILDING_COLORS.TEXT;
+        ctx.fillText(this.familyName, screenX, textY);
     }
 
     update(deltaTime) {}
