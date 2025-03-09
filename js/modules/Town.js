@@ -1,6 +1,11 @@
 import { Person } from './person/Person.js';
 import { OBJECT_POOL } from './gameState.js';
-import { Building, Store, PublicBuilding, ResidentialBuilding } from './Buildings.js';
+import { 
+    Building, 
+    Store, 
+    PublicBuilding, 
+    ResidentialBuilding 
+} from './buildings/index.js';
 import { generateRandomName } from './utils.js';
 
 export class Town {

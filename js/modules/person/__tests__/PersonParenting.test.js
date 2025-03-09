@@ -1,5 +1,5 @@
 import { Person } from '../Person';
-import { Store } from '../../Buildings';
+import { Store } from '../../buildings/index.js';
 
 describe('PersonParenting', () => {
     let parent, child, store;

@@ -1,5 +1,5 @@
 import { Person } from '../person/Person.js';
-import { Bank } from '../Buildings.js';
+import { Bank } from '../buildings/index.js';
 
 describe('Person Banking Behavior', () => {
     let person;
