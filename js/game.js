@@ -12,6 +12,7 @@ import {
 } from './modules/constants.js';
 import { getTranslation, LANGUAGES } from './modules/translations.js';
 import { debugLog, ObjectPool } from './modules/utils.js';
+import { initializeMetrics } from './modules/telemetry/metrics.js';
 
 // Global variables
 let people = [];
@@ -77,7 +78,8 @@ const camera = {
 };
 
 // Initialize game
-export function init() {
+async function initializeGame() {
+    await initializeMetrics();
     debugLog('Initializing game...', 'info');
     
     // Setup canvas
@@ -330,7 +332,7 @@ function handleKeyDown(event) {
 }
 
 // Start the game when the page loads
-window.addEventListener('load', init);
+window.addEventListener('load', initializeGame);
 
 // Export necessary functions and variables
 export {

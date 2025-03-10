@@ -3,6 +3,7 @@ import { PersonMovement } from './PersonMovement.js';
 import { PersonParenting } from './PersonParenting.js';
 import { PersonRendering } from './PersonRendering.js';
 import { PersonOccupation } from './PersonOccupation.js';
+import { recordMetric } from '../telemetry/metrics.js';
 
 export class Person extends PersonBase {
     constructor(x, y, gender) {
@@ -19,6 +20,17 @@ export class Person extends PersonBase {
         
         // Copy all methods from PersonOccupation prototype to Person instance
         this.copyPrototypeMethods(PersonOccupation.prototype);
+        
+        // Record metrics for person creation
+        try {
+            recordMetric('person.created', 1, {
+                gender: this.gender,
+                generation: this.generation
+            });
+        } catch (error) {
+            // Ignore errors from metrics recording
+            console.error('Error recording metrics:', error);
+        }
     }
     
     copyPrototypeMethods(prototype) {
@@ -31,6 +43,17 @@ export class Person extends PersonBase {
     }
 
     update(deltaTime) {
+        // Record age metrics
+        try {
+            recordMetric('person.age', this.age, {
+                occupation: this.occupation || 'Unknown',
+                gender: this.gender
+            });
+        } catch (error) {
+            // Ignore errors from metrics recording
+            console.error('Error recording metrics:', error);
+        }
+        
         if (this.children?.length > 0) {
             for (const child of this.children) {
                 if (child.hunger > 70 && 
@@ -46,6 +69,8 @@ export class Person extends PersonBase {
     
     // Methods needed by tests
     updateOccupationBasedOnAge() {
+        const previousOccupation = this.occupation;
+        
         if (this.age < 13) {
             this.occupation = 'Child';
             return;
@@ -82,6 +107,20 @@ export class Person extends PersonBase {
             } else {
                 // No town, just assign Farmer as default
                 this.occupation = 'Farmer';
+            }
+            
+            // Record metrics for occupation change if occupation actually changed
+            if (previousOccupation !== this.occupation) {
+                try {
+                    recordMetric('person.occupation_change', 1, {
+                        previous: previousOccupation || 'None',
+                        new: this.occupation,
+                        age: this.age
+                    });
+                } catch (error) {
+                    // Ignore errors from metrics recording
+                    console.error('Error recording metrics:', error);
+                }
             }
         }
     }
@@ -138,6 +177,18 @@ export class Person extends PersonBase {
     }
     
     die() {
+        // Record metrics for person death
+        try {
+            recordMetric('person.death', 1, {
+                age: this.age,
+                occupation: this.occupation || 'Unknown',
+                gender: this.gender
+            });
+        } catch (error) {
+            // Ignore errors from metrics recording
+            console.error('Error recording metrics:', error);
+        }
+        
         // Clear references
         this.town = null;
         this.parent = null;
