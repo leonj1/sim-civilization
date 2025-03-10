@@ -106,6 +106,9 @@ export function recordMetric(metricName, value, attributes = {}) {
         case 'person.wage':
             wageDistributionHistogram?.record(value, attributes);
             break;
+        default:
+            console.warn(`Unknown metric name: ${metricName}`);
+            break;
     }
 }
 
