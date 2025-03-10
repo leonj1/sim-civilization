@@ -10,6 +10,15 @@ function handleMetricsError(error, metricName) {
     console.error(`Error recording metric '${metricName}':`, error);
 }
 
+// Helper function to record metrics with error handling
+function recordPersonMetric(metricName, value, attributes = {}) {
+    try {
+        recordMetric(metricName, value, attributes);
+    } catch (error) {
+        handleMetricsError(error, metricName);
+    }
+}
+
 export class Person extends PersonBase {
     constructor(x, y, gender) {
         super(x, y, gender);
@@ -27,14 +36,10 @@ export class Person extends PersonBase {
         this.copyPrototypeMethods(PersonOccupation.prototype);
         
         // Record metrics for person creation
-        try {
-            recordMetric(METRIC_NAMES.PERSON_CREATED, 1, {
-                gender: this.gender,
-                generation: this.generation
-            });
-        } catch (error) {
-            handleMetricsError(error, METRIC_NAMES.PERSON_CREATED);
-        }
+        recordPersonMetric(METRIC_NAMES.PERSON_CREATED, 1, {
+            gender: this.gender,
+            generation: this.generation
+        });
     }
     
     copyPrototypeMethods(prototype) {
@@ -54,14 +59,10 @@ export class Person extends PersonBase {
         
         const newAge = Math.floor(this.age);
         if (newAge !== previousAge) {
-            try {
-                recordMetric(METRIC_NAMES.PERSON_AGE, this.age, {
-                    occupation: this.occupation || 'Unknown',
-                    gender: this.gender
-                });
-            } catch (error) {
-                handleMetricsError(error, METRIC_NAMES.PERSON_AGE);
-            }
+            recordPersonMetric(METRIC_NAMES.PERSON_AGE, this.age, {
+                occupation: this.occupation || 'Unknown',
+                gender: this.gender
+            });
         }
         
         if (this.children?.length > 0) {
@@ -121,15 +122,11 @@ export class Person extends PersonBase {
             
             // Record metrics for occupation change if occupation actually changed
             if (previousOccupation !== this.occupation) {
-                try {
-                    recordMetric(METRIC_NAMES.OCCUPATION_CHANGE, 1, {
-                        previous: previousOccupation || 'None',
-                        new: this.occupation,
-                        age: this.age
-                    });
-                } catch (error) {
-                    handleMetricsError(error, METRIC_NAMES.OCCUPATION_CHANGE);
-                }
+                recordPersonMetric(METRIC_NAMES.OCCUPATION_CHANGE, 1, {
+                    previous: previousOccupation || 'None',
+                    new: this.occupation,
+                    age: this.age
+                });
             }
         }
     }
@@ -187,15 +184,11 @@ export class Person extends PersonBase {
     
     die() {
         // Record metrics for person death
-        try {
-            recordMetric(METRIC_NAMES.PERSON_DEATH, 1, {
-                age: this.age,
-                occupation: this.occupation || 'Unknown',
-                gender: this.gender
-            });
-        } catch (error) {
-            handleMetricsError(error, METRIC_NAMES.PERSON_DEATH);
-        }
+        recordPersonMetric(METRIC_NAMES.PERSON_DEATH, 1, {
+            age: this.age,
+            occupation: this.occupation || 'Unknown',
+            gender: this.gender
+        });
         
         // Clear references
         this.town = null;
