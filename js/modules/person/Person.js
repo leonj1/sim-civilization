@@ -3,6 +3,21 @@ import { PersonMovement } from './PersonMovement.js';
 import { PersonParenting } from './PersonParenting.js';
 import { PersonRendering } from './PersonRendering.js';
 import { PersonOccupation } from './PersonOccupation.js';
+import { recordMetric, METRIC_NAMES } from '../telemetry/metrics.js';
+
+// Helper function for handling metrics errors with context
+function handleMetricsError(error, metricName) {
+    console.error(`Error recording metric '${metricName}':`, error);
+}
+
+// Helper function to record metrics with error handling
+function recordPersonMetric(metricName, value, attributes = {}) {
+    try {
+        recordMetric(metricName, value, attributes);
+    } catch (error) {
+        handleMetricsError(error, metricName);
+    }
+}
 
 export class Person extends PersonBase {
     constructor(x, y, gender) {
@@ -19,6 +34,12 @@ export class Person extends PersonBase {
         
         // Copy all methods from PersonOccupation prototype to Person instance
         this.copyPrototypeMethods(PersonOccupation.prototype);
+        
+        // Record metrics for person creation
+        recordPersonMetric(METRIC_NAMES.PERSON_CREATED, 1, {
+            gender: this.gender,
+            generation: this.generation
+        });
     }
     
     copyPrototypeMethods(prototype) {
@@ -31,6 +52,19 @@ export class Person extends PersonBase {
     }
 
     update(deltaTime) {
+        // Record age metrics only when age changes
+        const previousAge = Math.floor(this.age);
+        
+        // Age update logic would happen here
+        
+        const newAge = Math.floor(this.age);
+        if (newAge !== previousAge) {
+            recordPersonMetric(METRIC_NAMES.PERSON_AGE, this.age, {
+                occupation: this.occupation || 'Unknown',
+                gender: this.gender
+            });
+        }
+        
         if (this.children?.length > 0) {
             for (const child of this.children) {
                 if (child.hunger > 70 && 
@@ -46,6 +80,8 @@ export class Person extends PersonBase {
     
     // Methods needed by tests
     updateOccupationBasedOnAge() {
+        const previousOccupation = this.occupation;
+        
         if (this.age < 13) {
             this.occupation = 'Child';
             return;
@@ -82,6 +118,15 @@ export class Person extends PersonBase {
             } else {
                 // No town, just assign Farmer as default
                 this.occupation = 'Farmer';
+            }
+            
+            // Record metrics for occupation change if occupation actually changed
+            if (previousOccupation !== this.occupation) {
+                recordPersonMetric(METRIC_NAMES.OCCUPATION_CHANGE, 1, {
+                    previous: previousOccupation || 'None',
+                    new: this.occupation,
+                    age: this.age
+                });
             }
         }
     }
@@ -138,6 +183,13 @@ export class Person extends PersonBase {
     }
     
     die() {
+        // Record metrics for person death
+        recordPersonMetric(METRIC_NAMES.PERSON_DEATH, 1, {
+            age: this.age,
+            occupation: this.occupation || 'Unknown',
+            gender: this.gender
+        });
+        
         // Clear references
         this.town = null;
         this.parent = null;

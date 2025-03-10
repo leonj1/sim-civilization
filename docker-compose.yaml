@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"  # UI
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./js:/app/js
+      - ./styles:/app/styles
+      - ./index.html:/app/index.html
+    environment:
+      - NODE_ENV=development
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./js:/app/js
+      - ./jest.config.cjs:/app/jest.config.cjs
+      - ./jest.setup.js:/app/jest.setup.js
+      - ./babel.config.cjs:/app/babel.config.cjs
+    environment:
+      - NODE_ENV=test
+      - JAEGER_COLLECTOR_OTLP_HTTP=http://jaeger:4318
