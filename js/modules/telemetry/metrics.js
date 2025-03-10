@@ -19,7 +19,17 @@ export async function initializeMetrics() {
         const { metrics } = await import('@opentelemetry/api');
         
         // Try to connect to Jaeger
-        const response = await fetch(`http://localhost:${process.env.JAEGER_COLLECTOR_OTLP_HTTP || 4318}/health`);
+        // Extract port from URL or use the value directly if it's just a port
+        let jaegerUrl = process.env.JAEGER_COLLECTOR_OTLP_HTTP || '4318';
+        
+        // If it's a full URL, use it directly, otherwise construct localhost URL with port
+        if (jaegerUrl.startsWith('http')) {
+            jaegerUrl = `${jaegerUrl}/health`;
+        } else {
+            jaegerUrl = `http://localhost:${jaegerUrl}/health`;
+        }
+        
+        const response = await fetch(jaegerUrl);
         if (!response.ok) {
             console.log('Jaeger not available, metrics disabled');
             return;
