@@ -1,3 +1,13 @@
+// Define metric name constants to avoid string literals
+export const METRIC_NAMES = {
+    PERSON_CREATED: 'person.created',
+    PERSON_DEATH: 'person.death',
+    OCCUPATION_CHANGE: 'person.occupation_change',
+    PERSON_AGE: 'person.age',
+    PERSON_WAGE: 'person.wage',
+    POPULATION: 'person.population'
+};
+
 let metricsEnabled = false;
 let meter = null;
 
@@ -39,19 +49,19 @@ export async function initializeMetrics() {
         meter = metrics.getMeter('person-simulation');
         
         // Initialize metrics
-        personCreatedCounter = meter.createCounter('person.created', {
+        personCreatedCounter = meter.createCounter(METRIC_NAMES.PERSON_CREATED, {
             description: 'Number of people created'
         });
         
-        personDeathCounter = meter.createCounter('person.death', {
+        personDeathCounter = meter.createCounter(METRIC_NAMES.PERSON_DEATH, {
             description: 'Number of people who died'
         });
         
-        occupationChangeCounter = meter.createCounter('person.occupation_change', {
+        occupationChangeCounter = meter.createCounter(METRIC_NAMES.OCCUPATION_CHANGE, {
             description: 'Number of occupation changes'
         });
         
-        populationGauge = meter.createObservableGauge('person.population', {
+        populationGauge = meter.createObservableGauge(METRIC_NAMES.POPULATION, {
             description: 'Current total population'
         }, (observableResult) => {
             // Get current population from game state
@@ -60,7 +70,7 @@ export async function initializeMetrics() {
             observableResult.observe(population);
         });
         
-        averageAgeGauge = meter.createObservableGauge('person.average_age', {
+        averageAgeGauge = meter.createObservableGauge(METRIC_NAMES.PERSON_AGE + '_average', {
             description: 'Average age of population'
         }, (observableResult) => {
             // Calculate the average age from game state
@@ -71,11 +81,11 @@ export async function initializeMetrics() {
             observableResult.observe(avgAge);
         });
         
-        personAgeHistogram = meter.createHistogram('person.age_distribution', {
+        personAgeHistogram = meter.createHistogram(METRIC_NAMES.PERSON_AGE + '_distribution', {
             description: 'Distribution of person ages'
         });
         
-        wageDistributionHistogram = meter.createHistogram('person.wage_distribution', {
+        wageDistributionHistogram = meter.createHistogram(METRIC_NAMES.PERSON_WAGE + '_distribution', {
             description: 'Distribution of wages'
         });
 
@@ -91,19 +101,19 @@ export function recordMetric(metricName, value, attributes = {}) {
     if (!metricsEnabled) return;
 
     switch (metricName) {
-        case 'person.created':
+        case METRIC_NAMES.PERSON_CREATED:
             personCreatedCounter?.add(1, attributes);
             break;
-        case 'person.death':
+        case METRIC_NAMES.PERSON_DEATH:
             personDeathCounter?.add(1, attributes);
             break;
-        case 'person.occupation_change':
+        case METRIC_NAMES.OCCUPATION_CHANGE:
             occupationChangeCounter?.add(1, attributes);
             break;
-        case 'person.age':
+        case METRIC_NAMES.PERSON_AGE:
             personAgeHistogram?.record(value, attributes);
             break;
-        case 'person.wage':
+        case METRIC_NAMES.PERSON_WAGE:
             wageDistributionHistogram?.record(value, attributes);
             break;
         default:

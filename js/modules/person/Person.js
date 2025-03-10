@@ -3,7 +3,7 @@ import { PersonMovement } from './PersonMovement.js';
 import { PersonParenting } from './PersonParenting.js';
 import { PersonRendering } from './PersonRendering.js';
 import { PersonOccupation } from './PersonOccupation.js';
-import { recordMetric } from '../telemetry/metrics.js';
+import { recordMetric, METRIC_NAMES } from '../telemetry/metrics.js';
 
 // Helper function for handling metrics errors with context
 function handleMetricsError(error, metricName) {
@@ -28,12 +28,12 @@ export class Person extends PersonBase {
         
         // Record metrics for person creation
         try {
-            recordMetric('person.created', 1, {
+            recordMetric(METRIC_NAMES.PERSON_CREATED, 1, {
                 gender: this.gender,
                 generation: this.generation
             });
         } catch (error) {
-            handleMetricsError(error, 'person.created');
+            handleMetricsError(error, METRIC_NAMES.PERSON_CREATED);
         }
     }
     
@@ -55,12 +55,12 @@ export class Person extends PersonBase {
         const newAge = Math.floor(this.age);
         if (newAge !== previousAge) {
             try {
-                recordMetric('person.age', this.age, {
+                recordMetric(METRIC_NAMES.PERSON_AGE, this.age, {
                     occupation: this.occupation || 'Unknown',
                     gender: this.gender
                 });
             } catch (error) {
-                handleMetricsError(error, 'person.age');
+                handleMetricsError(error, METRIC_NAMES.PERSON_AGE);
             }
         }
         
@@ -122,13 +122,13 @@ export class Person extends PersonBase {
             // Record metrics for occupation change if occupation actually changed
             if (previousOccupation !== this.occupation) {
                 try {
-                    recordMetric('person.occupation_change', 1, {
+                    recordMetric(METRIC_NAMES.OCCUPATION_CHANGE, 1, {
                         previous: previousOccupation || 'None',
                         new: this.occupation,
                         age: this.age
                     });
                 } catch (error) {
-                    handleMetricsError(error, 'person.occupation_change');
+                    handleMetricsError(error, METRIC_NAMES.OCCUPATION_CHANGE);
                 }
             }
         }
@@ -188,13 +188,13 @@ export class Person extends PersonBase {
     die() {
         // Record metrics for person death
         try {
-            recordMetric('person.death', 1, {
+            recordMetric(METRIC_NAMES.PERSON_DEATH, 1, {
                 age: this.age,
                 occupation: this.occupation || 'Unknown',
                 gender: this.gender
             });
         } catch (error) {
-            handleMetricsError(error, 'person.death');
+            handleMetricsError(error, METRIC_NAMES.PERSON_DEATH);
         }
         
         // Clear references
