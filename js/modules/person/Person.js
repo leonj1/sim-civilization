@@ -5,6 +5,11 @@ import { PersonRendering } from './PersonRendering.js';
 import { PersonOccupation } from './PersonOccupation.js';
 import { recordMetric } from '../telemetry/metrics.js';
 
+// Helper function for handling metrics errors with context
+function handleMetricsError(error, metricName) {
+    console.error(`Error recording metric '${metricName}':`, error);
+}
+
 export class Person extends PersonBase {
     constructor(x, y, gender) {
         super(x, y, gender);
@@ -28,8 +33,7 @@ export class Person extends PersonBase {
                 generation: this.generation
             });
         } catch (error) {
-            // Ignore errors from metrics recording
-            console.error('Error recording metrics:', error);
+            handleMetricsError(error, 'person.created');
         }
     }
     
@@ -56,8 +60,7 @@ export class Person extends PersonBase {
                     gender: this.gender
                 });
             } catch (error) {
-                // Ignore errors from metrics recording
-                console.error('Error recording metrics:', error);
+                handleMetricsError(error, 'person.age');
             }
         }
         
@@ -125,8 +128,7 @@ export class Person extends PersonBase {
                         age: this.age
                     });
                 } catch (error) {
-                    // Ignore errors from metrics recording
-                    console.error('Error recording metrics:', error);
+                    handleMetricsError(error, 'person.occupation_change');
                 }
             }
         }
@@ -192,8 +194,7 @@ export class Person extends PersonBase {
                 gender: this.gender
             });
         } catch (error) {
-            // Ignore errors from metrics recording
-            console.error('Error recording metrics:', error);
+            handleMetricsError(error, 'person.death');
         }
         
         // Clear references
