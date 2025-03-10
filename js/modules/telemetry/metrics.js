@@ -52,10 +52,22 @@ export async function initializeMetrics() {
         
         populationGauge = meter.createObservableGauge('person.population', {
             description: 'Current total population'
+        }, (observableResult) => {
+            // Get current population from game state
+            const { towns } = require('../gameState.js');
+            const population = towns.reduce((total, town) => total + town.population, 0);
+            observableResult.observe(population);
         });
         
         averageAgeGauge = meter.createObservableGauge('person.average_age', {
             description: 'Average age of population'
+        }, (observableResult) => {
+            // Calculate the average age from game state
+            const { towns } = require('../gameState.js');
+            const allPeople = towns.flatMap(town => town.people);
+            const avgAge = allPeople.length > 0 ? 
+                allPeople.reduce((sum, person) => sum + person.age, 0) / allPeople.length : 0;
+            observableResult.observe(avgAge);
         });
         
         personAgeHistogram = meter.createHistogram('person.age_distribution', {
