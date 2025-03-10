@@ -43,15 +43,22 @@ export class Person extends PersonBase {
     }
 
     update(deltaTime) {
-        // Record age metrics
-        try {
-            recordMetric('person.age', this.age, {
-                occupation: this.occupation || 'Unknown',
-                gender: this.gender
-            });
-        } catch (error) {
-            // Ignore errors from metrics recording
-            console.error('Error recording metrics:', error);
+        // Record age metrics only when age changes
+        const previousAge = Math.floor(this.age);
+        
+        // Age update logic would happen here
+        
+        const newAge = Math.floor(this.age);
+        if (newAge !== previousAge) {
+            try {
+                recordMetric('person.age', this.age, {
+                    occupation: this.occupation || 'Unknown',
+                    gender: this.gender
+                });
+            } catch (error) {
+                // Ignore errors from metrics recording
+                console.error('Error recording metrics:', error);
+            }
         }
         
         if (this.children?.length > 0) {
