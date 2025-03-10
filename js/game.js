@@ -79,7 +79,12 @@ const camera = {
 
 // Initialize game
 async function initializeGame() {
-    await initializeMetrics();
+    try {
+        await initializeMetrics();
+    } catch (error) {
+        console.error('Failed to initialize metrics:', error);
+        // Continue with game initialization despite metrics failure
+    }
     debugLog('Initializing game...', 'info');
     
     // Setup canvas
