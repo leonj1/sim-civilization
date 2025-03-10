@@ -32,6 +32,7 @@ export async function initializeMetrics() {
         const response = await fetch(jaegerUrl);
         if (!response.ok) {
             console.log('Jaeger not available, metrics disabled');
+            metricsEnabled = false;
             return;
         }
 
