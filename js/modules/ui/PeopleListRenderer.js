@@ -97,8 +97,14 @@ export class PeopleListRenderer {
 
     renderPeopleList(allPeopleEver, people, currentGenerationNumber) {
         const stats = this.renderPopulationStats(allPeopleEver, people, currentGenerationNumber);
-        // Only show living people
         const peopleEntries = people.map(person => this.renderPersonEntry(person)).join('');
-        return stats + peopleEntries;
+        const content = stats + peopleEntries;
+        
+        // Update the React component instead of directly manipulating DOM
+        if (window.updatePeopleListEntries) {
+            window.updatePeopleListEntries(content);
+        }
+        
+        return content;
     }
 }

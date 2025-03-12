@@ -1,4 +1,5 @@
-import { terrain, COLORS } from '../constants.js';
+import { COLORS } from '../constants.js';
+import { terrain } from '../../game.js';
 
 export class PersonMovement {
     setNewTarget() {

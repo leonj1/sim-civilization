@@ -6,12 +6,14 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install && \
-    npm install --save @opentelemetry/api
+RUN npm install
 
 # Copy source files and test configuration
 COPY js/ ./js/
 COPY jest.config.cjs jest.setup.js babel.config.cjs ./
+
+# Copy webpack config
+COPY webpack.config.js ./
 
 # Set environment to test
 ENV NODE_ENV=test

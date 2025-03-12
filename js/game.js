@@ -2,7 +2,6 @@
 import { Person } from './modules/person/Person.js';
 import { Building, Store, PublicBuilding, ResidentialBuilding, Bank } from './modules/buildings/index.js';
 import { Town } from './modules/Town.js';
-import { MarkovChain } from './modules/MarkovChain.js';
 import { TRANSLATIONS, THOUGHTS } from './modules/translations.js';
 import { 
     TOWN_PREFIXES, TOWN_SYLLABLES, MOTTO_TEMPLATES,
@@ -352,8 +351,6 @@ export {
     currentGenerationNumber,
     tagGame,
     rpsGame,
-    OBJECT_POOL,
-    init,
     isPaused,
     Bank,
     federalInterestRate
