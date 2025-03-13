@@ -1904,7 +1904,7 @@
             <br><span style="font-size: 9px">${t.generation}: ${person.generation}<br>(${getGenerationName(person.generation)})</span>
             <br><span style="font-size: 9px">${t.mother}: ${motherInfo}</span>
             <br><span style="font-size: 9px">${t.father}: ${fatherInfo}</span>
-            <br><span style="font-size: 9px">${t.citizen}: ${townInfo}</span>
+            <br><span style="font-size: 9px">${t.citizen ? `${t.citizen}: ` : ''}${townInfo}</span>
             ${person.currentThought ? `<div class="thoughts">"${person.currentThought}"</div>` : ''}
             ${person.traits && person.traits.length ? `<div class="traits">Traits: ${person.traits.join(', ')}</div>` : ''}
             ${person.isPlayingTag ? `<br><span style="font-size: 9px; color: ${person.isIt ? 'red' : '#FFD700'}">
